@@ -1,14 +1,14 @@
+use core::traits::TryInto;
 use starknet::eth_signature::{is_eth_signature_valid};
 use starknet::EthAddress;
 use starknet::secp256_trait::Signature;
 
-
-//| Account address |  0x30A333e4207129AD466a0B88b329651833605de4
-//| Private key     |  0x89ac8b3450f4f77fba1214fde42da15bc0d6b74cd1e77d8831528143ed8dc52c
-//| public key      |  0x02d8834cfd7957d3cdf4ddd4ff038e6f8c06f31170d486cb52b737c0d41b0273e0
+use core::poseidon::PoseidonTrait;
+use core::hash::{HashStateTrait, HashStateExTrait};
 
 const public_key : felt252 =  0x30A333e4207129AD466a0B88b329651833605de4;
 
+// Verify Seismic signature over a commitment.
 fn verify_signature(commitment: u256, signature: Signature) {
     let eth_address: EthAddress = public_key.try_into().unwrap();
     return is_eth_signature_valid(commitment, signature, eth_address).unwrap();
