@@ -2,19 +2,18 @@ import { ApolloClient, InMemoryCache, HttpLink, split } from '@apollo/client/cor
 import { getMainDefinition } from '@apollo/client/utilities';
 import { GraphQLWsLink } from "@apollo/client/link/subscriptions";
 import { createClient } from "graphql-ws";
-import 'cross-fetch/polyfill';
 import { WebSocket } from "ws";
 
 (global as any).WebSocket = WebSocket;
 export function createApolloClient() {
   
   const httpLink = new HttpLink({
-      uri: 'http://0.0.0.0:8080/graphql',
+      uri: process.env.GQL_URL,
       fetch
   });
 
   const wsLink = new GraphQLWsLink(createClient({
-      url: 'ws://0.0.0.0:8080/graphql/ws',
+      url: process.env.GQL_URL_WSS as string,
       webSocketImpl: WebSocket,
   }));
 
