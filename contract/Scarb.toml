@@ -1,5 +1,5 @@
 [package]
-name = "sig_verifier"
+name = "seismic"
 version = "0.1.0"
 edition = "2023_11"
 
@@ -10,3 +10,8 @@ snforge_std = { git = "https://github.com/foundry-rs/starknet-foundry.git", tag 
 
 [[target.starknet-contract]]
 casm = true
+allowed-libfuncs-list.name = "experimental"
+sierra = true
+
+[cairo]
+sierra-replace-ids = true
