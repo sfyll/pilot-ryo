@@ -85,6 +85,6 @@ mod tests {
             s: 0x32e5d84eeb0d14588aab7659e15ba267dafb312d63b07cfac18cb48ff179e1fb, 
             y_parity: false
         };
-        let result = dispatcher.verify_signature(commitment, signature);
+        dispatcher.verify_signature(commitment, signature);
     }
 }
