@@ -5,11 +5,11 @@ import Controller from "../interfaces/controller.interface";
 import { RequestWithSignature } from "../interfaces/request.interface";
 import AuthenticationService from "./authentication.service";
 import {
-    nonceActionDomain,
-    nonceActionTypes,
-    nonceActionTypeLabel,
+    tradeParametersActionTypeLabel,
+    tradeParametersActionTypes,
+    tradeParametersActionDomain,
 } from "./authentication.types";
-import { NonceDto, ActionDto } from "./authentication.dto";
+import { PlayerDetailsDto  } from "./authentication.dto";
 
 class AuthenticationController implements Controller {
     public path = "/authentication";
@@ -22,18 +22,13 @@ class AuthenticationController implements Controller {
     }
 
     private initializeRoutes() {
-        this.router.get(
-            `${this.path}/nonce`,
-            validationMiddleware(NonceDto),
-            this.nonce,
-        );
         this.router.post(
             `${this.path}/action`,
-            validationMiddleware(ActionDto),
+            validationMiddleware(PlayerDetailsDto),
             authMiddleware(
-                nonceActionTypes,
-                `${nonceActionTypeLabel}Tx`,
-                nonceActionDomain,
+                tradeParametersActionTypes,
+                `${tradeParametersActionTypeLabel}Tx`,
+                tradeParametersActionDomain,
             ),
             this.action,
         );
@@ -42,16 +37,16 @@ class AuthenticationController implements Controller {
     /*
      * Retrieves current nonce for requested address.
      */
-    private nonce = async (
-        request: Request,
-        response: Response,
-    ) => {
-        const address: string = request.body.address;
-            response.send({
-                nonce: this.authenticationService.getNonce(address).toString(),
-            });
-            return;
-    };
+    //private trade_parameters = async (
+    //    request: Request,
+    //    response: Response,
+    //) => {
+    //    const address: string = request.body.address;
+    //        response.send({
+    //            nonce: this.authenticationService.fetchPlayer(address).toString(),
+    //        });
+    //        return;
+    //};
 
     /*
      * A dummy action function to test middlware during development. Doesn't do

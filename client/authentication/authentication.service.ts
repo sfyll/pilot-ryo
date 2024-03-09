@@ -1,22 +1,34 @@
+import IncorrectPlayerDataException from "../exceptions/IncorrectPlayerDataException";
+import { get_player_details } from "../ryo/silicon/silicon_query";
+import { PlayerData } from "../ryo/silicon/types";
+import { apolloClient } from "../ryo/utils/subscription_manager";
+
 class AuthenticationService {
-    private nonces: Map<string, BigInt> = new Map();
 
     /*
-     * Returns current nonce of address.
+     * Returns player_id and game_id as seen by the playerModel on-chain.
+     * Errors can be further refined, tbd post v1 poc.
      */
-    public getNonce(address: string): BigInt {
-        return this.nonces.get(address) ?? BigInt(0);
-    }
+    public async fetchPlayer(game_id: number, player_id: string): Promise<PlayerData> {
+        try {
+            const response = await apolloClient.query({
+                query: get_player_details,
+                variables: {
+                    playerWhereInput: {
+                        game_id: game_id,
+                        player_id: player_id
+                    }
+                }
+            });
 
-    /*
-     * Increments nonce of a given address, beginning at 0.
-     */
-    public incrementNonce(address: string) {
-        if (!this.nonces.has(address)) {
-            this.nonces.set(address, BigInt(0));
-        }
-        const currentVal = (this.nonces.get(address) ?? BigInt(0)) as bigint;
-        this.nonces.set(address, currentVal + BigInt(1));
+            const player = response.data.playerModels.edges[0]?.node;
+            if (!player) {
+                throw new IncorrectPlayerDataException;
+            }
+        return player;
+        } catch (error) {
+            throw new IncorrectPlayerDataException;
+         } 
     }
 }
 

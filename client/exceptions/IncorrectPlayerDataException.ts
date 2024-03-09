@@ -1,9 +1,9 @@
 import HttpException from "./HttpException";
 
-class IncorrectNonceException extends HttpException {
+class IncorrectPlayerDataException extends HttpException {
     constructor() {
         super(401, `Incorrect nonce submitted.`);
     }
 }
 
-export default IncorrectNonceException;
+export default IncorrectPlayerDataException;

@@ -34,3 +34,9 @@ export class EncryptedMarketSilicon extends MarketSilicon<bigint, bigint> {}
  * Extend the base Market for TransparentMarket with specific types for cash and quantity.
  */
 export class TransparentMarketSilicon extends MarketSilicon<number, number> {}
+
+
+export interface PlayerData {
+  game_id: number;
+  player_id: string;
+}

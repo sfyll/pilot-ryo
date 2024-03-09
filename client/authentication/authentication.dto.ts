@@ -1,22 +1,10 @@
 import "reflect-metadata";
-import { ValidateNested } from "class-validator";
 import { IsBigIntString } from "../utils/bigint";
-import { Type } from "class-transformer";
 
-export class NonceDto {
+export class PlayerDetailsDto { 
     @IsBigIntString()
-    public address: string;
-}
-
-class ActionTxDto {
+    player_id: string
+    
     @IsBigIntString()
-    public nonce: string;
-}
-export class ActionDto {
-    @ValidateNested()
-    @Type(() => ActionTxDto)
-    public tx: ActionTxDto;
-
-    @IsBigIntString()
-    public signature: string;
+    game_id: string
 }

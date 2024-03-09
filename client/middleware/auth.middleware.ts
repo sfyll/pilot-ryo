@@ -6,7 +6,6 @@ import { handleAsync } from "../utils/error";
 import AuthenticationService from "../authentication/authentication.service";
 import { RequestWithSignature } from "../interfaces/request.interface";
 import InvalidSignatureException from "../exceptions/InvalidSignatureException";
-import IncorrectNonceException from "../exceptions/IncorrectNonceException";
 
 /*
  * Authenticates an incoming request by checking whether the singer has not
@@ -39,15 +38,7 @@ function authMiddleware<T>(
         const authenticationService = request.app.get(
             "authenticationService",
         ) as AuthenticationService;
-        if (
-            authenticationService.getNonce(sender) !==
-            BigInt(request.body.tx.nonce)
-        ) {
-            next(new IncorrectNonceException());
-            return;
-        }
 
-        authenticationService.incrementNonce(sender);
         request.body["sender"] = sender;
         next();
     }

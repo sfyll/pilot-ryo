@@ -3,6 +3,8 @@ import { getMessage } from "eip-712";
 import { EIP712DomainType, EIP712Types } from "../interfaces/eip712.interface";
 import { keccak256 } from "viem";
 import { MessagePrefix } from "ethers";
+import { kcc } from "viem/chains";
+import { Signature, SignerInterface, WeierstrassSignatureType } from "starknet";
 
 /*
  * Converts a uint8 array to a hexstring w/o the leading '0x'.
@@ -32,6 +34,28 @@ export async function signTypedData(
     });
 }
 
+/*
+ * Sign typed data according to EIP712. For use on Starknet.
+ */
+export async function signTypedDataStarknet(
+    walletClient: SignerInterface,
+    accountAddress: string,
+    types: any,
+    primaryType: string,
+    domain: EIP712DomainType,
+    message: any,
+): Promise<Signature> {
+    console.log("types: ", types);
+    console.log("PrimaryType: ", primaryType);
+    console.log("Domain: ", domain);
+    console.log("message: ", message);
+    const messageHash = hashTypedData(types, primaryType, domain, message);
+    const messageHex: Hex = `0x${messageHash}`;
+    return walletClient.signMessage({
+        message: { raw: messageHex as `0x${string}` },
+        accountAddress
+    });
+}
 /*
  * Recovers the address of a signed message.
  */

@@ -33,7 +33,6 @@ export function createEIP712Types(
         EIP712Domain: EIP712DomainSpec,
         [bodyType]: bodySpec,
         [`${bodyType}Tx`]: [
-            { name: "nonce", type: "uint256" },
             { name: "body", type: bodyType },
         ],
     };
@@ -60,7 +59,7 @@ export function createEIP712DomainType(name: string) {
     return {
         name,
         version: process.env.VERSION,
-        chainId: Number(process.env.CHAIN_ID),
+        chainId: process.env.CHAIN_ID?.startsWith('0x') ? parseInt(process.env.CHAIN_ID, 16) : Number(process.env.CHAIN_ID),
         verifyingContract: `0x${process.env.CONTRACT_ADDR}`,
     };
 }

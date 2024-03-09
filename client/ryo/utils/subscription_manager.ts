@@ -1,12 +1,15 @@
-import { ApolloClient, InMemoryCache, HttpLink, split } from '@apollo/client/core';
+import { ApolloClient, InMemoryCache, HttpLink, split, NormalizedCacheObject } from '@apollo/client/core';
 import { getMainDefinition } from '@apollo/client/utilities';
 import { GraphQLWsLink } from "@apollo/client/link/subscriptions";
 import { createClient } from "graphql-ws";
 import { WebSocket } from "ws";
 
 (global as any).WebSocket = WebSocket;
-export function createApolloClient() {
-  
+
+export const apolloClient = createApolloClient();
+
+export function createApolloClient() : ApolloClient<NormalizedCacheObject> {
+  if (typeof apolloClient !== 'undefined') return apolloClient;
   const httpLink = new HttpLink({
       uri: process.env.GQL_URL,
       fetch
@@ -36,5 +39,4 @@ const splitLink = split(
   return client;
 }
 
-export const apolloClient = createApolloClient();
 
