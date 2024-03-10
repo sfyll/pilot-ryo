@@ -2,9 +2,14 @@ import { GET_ALL_MARKETS_QUERY, GET_ALL_ENCRYPTED_MARKETS_QUERY } from "../graph
 import { Silicon, instantiate_silicon } from "./silicon/silicon";
 import  SiliconService from "./silicon/silicon.service"; 
 
-import { Router, Request, Response } from "express";
+import { Router, Request, Response, RequestHandler } from "express";
 import Controller from "../interfaces/controller.interface";
 import { EncryptedMarketSilicon, TransparentMarketSilicon } from "./silicon/silidon.types";
+
+import { starknetAuthhMiddleware } from "../middleware/auth.middleware";
+import validationMiddleware from "../middleware/validation.middleware";
+import { TradeParametersDADto} from "./ryo.dto";
+import { tradeParametersDAReqTyped } from "./ryo.types";
 
 class RyoController implements Controller {
     public path = "/trade";
@@ -18,7 +23,16 @@ class RyoController implements Controller {
     }
 
     private initializeRoutes() {
-        this.router.get(`${this.path}/ping`, this.ping);
+        this.router.post(
+                    `${this.path}/tradeParameters`,
+                    validationMiddleware(TradeParametersDADto),
+                    starknetAuthhMiddleware(
+                        tradeParametersDAReqTyped.types,
+                        tradeParametersDAReqTyped.primaryType,
+                        tradeParametersDAReqTyped.domain,
+                    ),
+                    this.ping,
+                );
     }
 
     /*
