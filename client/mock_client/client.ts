@@ -5,73 +5,29 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import { signTypedDataStarknet } from "../utils/signature";
-import { size } from "viem";
+import { tradeParametersActionDomain, tradeParametersActionTypeLabel, tradeParametersActionTypes } from "../ryo/ryo.types";
+import { stringifyBigInts } from "../utils/bigint";
 
+/*
+ * Instantiate Wallet Provider pointing to katana client. 
+ */
 export async function setupDojoProvider():  Promise<Account | null>  { 
 
     const rpcProvider = new RpcProvider({
-        nodeUrl: "http://localhost:5050",
+        nodeUrl: process.env.RPC_URL,
     });
 
-    const tp = await rpcProvider.getChainId()
+    let tp = rpcProvider.getBlockNumber()
 
-
+    console.log(tp)
     return new Account(rpcProvider, process.env.USER_ADDRESS as string, process.env.USER_PRIVKEY as string, "1");
 }
-
-const masterAccount = await setupDojoProvider() as Account;
-
-const message = {
-    player_id: '0x5672693c3687ebdedda032c23eee53a270225700fde9303081197666c718bc4',
-    game_id: '0'
-}
-
-
-// Function to send signature to your endpoint
-// async function sendSignatureToEndpoint(signature: WeierstrassSignatureType, address: string, tradeParametersActionTypes, tradeParametersActionTypeLabel, tradeParametersActionDomain, message) {
-//     const url = `http://localhost:3000/authentication/action`; // Adjust the domain and port as necessary
-
-//     try {
-//         const response = await fetch(url, {
-//             method: 'POST',
-//             headers: {
-//                 'Content-Type': 'application/json',
-//                 // Include other headers as required, like authentication tokens
-//             },
-//             body: JSON.stringify({
-//                 signature: signature,
-//                 // Include other body parameters as required
-//             }),
-//         });
-
-//         if (!response.ok) {
-//             throw new Error(`Error: ${response.status}`);
-//         }
-
-//         const data = await response.json();
-//         console.log('Response from server:', data);
-//     } catch (error) {
-//         console.error('Error sending signature to endpoint:', error);
-//     }
-// }
-
-// // Use this function where you want to send the signature
-// await sendSignatureToEndpoint(signature);
-
-
-
-// const signature = await signTypedDataStarknet(masterAccount.signer, masterAccount.address, tradeParametersActionTypes, tradeParametersActionTypeLabel, tradeParametersActionDomain, message) as WeierstrassSignatureType;
-
-// console.log("signature: ", signature)
-
 
 /*
  * Seismic tracks a nonce for each wallet to avoid replay attacks. Note this is
  * NOT the nonce that Ethereum tracks for the wallet.
  */
 async function nonce(walletClient: any) {
-    console.log(walletClient.address)
-    console.log(size(walletClient))
     const response = await axios.get(
         `${process.env.ENDPOINT}/authentication/nonce`,
         {
@@ -88,7 +44,37 @@ async function nonce(walletClient: any) {
     }
     return response.data.nonce;
 }
+ 
+/*
+* Note this is a mock demonstration of signature verification for Starknet.
+* During games, we will tie signed data over the player_id, which means that the signer MUST
+* sign with the private key associated to the player_id.
+*/
+async function runDemo() {
 
-const nonceVal = await nonce(masterAccount)
+    const masterAccount = await setupDojoProvider() as Account;
 
-console.log(nonceVal)
+    let senderNonce = await nonce(masterAccount)
+
+    const tx = {
+        nonce: BigInt(senderNonce).toString(),
+        player_id: masterAccount.address,
+        game_id: '0',
+
+    }
+
+    const signature = await signTypedDataStarknet(masterAccount, tradeParametersActionTypes, tradeParametersActionTypeLabel, tradeParametersActionDomain, tx) as WeierstrassSignatureType;
+
+    const response = await axios.post(`${process.env.ENDPOINT}/trade/tradeParameters`, {
+        tx: stringifyBigInts(tx),
+        signature: stringifyBigInts(signature),
+    });
+    if (response.status !== 200) {
+        throw new Error("Could not acquire data availability signature");
+    }
+    console.log("response: ", response.data);
+}
+
+(async () => {
+    await runDemo();
+})();
