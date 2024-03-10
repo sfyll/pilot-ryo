@@ -26,4 +26,19 @@ export interface RequestWithContract extends Request {
     };
 }
 
+export interface StarknetRequestWithSignature extends Request {
+    body: {
+        signature: {
+            [key: string]: any ;
+        };
+        tx: {
+            player_id: string,
+            [key: string]: any 
+        };
+        sender?: string;
+    };
+}
+
+
+
 export type RequestWithUpgradeContract = RequestWithContract;

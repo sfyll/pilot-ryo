@@ -29,6 +29,12 @@ export const EIP712DomainSpec = [
     { name: "verifyingContract", type: "address" },
 ];
 
+export const EIP712DomainSpecStarknet = [
+    { name: "name", type: "string" },
+    { name: "version", type: "felt" },
+    { name: "chainId", type: "felt" },
+];
+
 /*
  * Enforces a body + wrapper type structure for incoming requests. The body
  * holds request-specific info while the wrapper holds the nonce.
@@ -55,11 +61,24 @@ export function createEIP712TypesNoBody(
     spec: { name: string; type: string }[],
 ) {
     return {
-        EIP712Domain: EIP712DomainSpec,
+        EIP712Domain: EIP712DomainSpecStarknet,
         [name]: spec,
     };
 }
 
+/*
+ * Starknet typing rigidity prevent us from using nested typing definitions. As such,
+*  so-called NoBody structures are privileged.
+ */
+export function createEIP712TypesNoBodyStarknet(
+    name: string,
+    spec: { name: string; type: string }[],
+) {
+    return {
+        StarkNetDomain: EIP712DomainSpecStarknet,
+        [name]: spec,
+    };
+}
 /*
  * All the domain separators used in signing typed data.
  */
@@ -72,6 +91,9 @@ export function createEIP712DomainType(name: string) {
     };
 }
 
+/*
+ * All the domain separators used in signing typed data, for starknet.
+ */
 export function createStarknetEIP712DomainType(name: string) {
     return { 
         name,
