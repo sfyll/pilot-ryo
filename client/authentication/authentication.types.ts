@@ -2,8 +2,8 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import {
-    createEIP712Types,
-    createEIP712DomainType,
+    createStarknetEIP712DomainType,
+    createEIP712TypesNoBody,
 } from "../interfaces/eip712.interface";
 
 export const TradeParametersTypes = [
@@ -12,8 +12,8 @@ export const TradeParametersTypes = [
 ];
 
 export const tradeParametersActionTypeLabel = "TradeParameters";
-export let tradeParametersActionTypes = createEIP712Types(tradeParametersActionTypeLabel, TradeParametersTypes);
-export const tradeParametersActionDomain = createEIP712DomainType("Trade Parameters Action");
+export let tradeParametersActionTypes = createEIP712TypesNoBody(tradeParametersActionTypeLabel, TradeParametersTypes);
+export const tradeParametersActionDomain = createStarknetEIP712DomainType("Trade Parameters Action");
 
 
 

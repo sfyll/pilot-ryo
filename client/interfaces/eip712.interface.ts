@@ -1,8 +1,16 @@
+import { shortString } from "starknet";
+
 export interface EIP712DomainType {
     name: string;
     version: string | undefined;
     chainId: number;
     verifyingContract: string;
+}
+
+export interface StarknetEIP712DomainType {
+    name: string;
+    version: string | undefined;
+    chainId: number;
 }
 
 interface EIP712DomainTypeElement {
@@ -61,5 +69,13 @@ export function createEIP712DomainType(name: string) {
         version: process.env.VERSION,
         chainId: process.env.CHAIN_ID?.startsWith('0x') ? parseInt(process.env.CHAIN_ID, 16) : Number(process.env.CHAIN_ID),
         verifyingContract: `0x${process.env.CONTRACT_ADDR}`,
+    };
+}
+
+export function createStarknetEIP712DomainType(name: string) {
+    return { 
+        name,
+        version: process.env.VERSION,
+        chainId: typeof process.env.CHAIN_ID === 'string' ? shortString.encodeShortString(process.env.CHAIN_ID) : Number(process.env.CHAIN_ID),
     };
 }

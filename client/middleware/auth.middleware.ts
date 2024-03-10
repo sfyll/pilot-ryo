@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response, RequestHandler } from "express";
 
-import { EIP712Types, EIP712DomainType } from "../interfaces/eip712.interface";
+import { EIP712Types, EIP712DomainType, StarknetEIP712DomainType } from "../interfaces/eip712.interface";
 import { recoverTypedMessageAddress } from "../utils/signature";
 import { handleAsync } from "../utils/error";
 import AuthenticationService from "../authentication/authentication.service";
@@ -11,7 +11,7 @@ import InvalidSignatureException from "../exceptions/InvalidSignatureException";
  * Authenticates an incoming request by checking whether the singer has not
  * used this nonce before.
  */
-function authMiddleware<T>(
+export function authMiddleware<T>(
     dataTypes: EIP712Types,
     dataPrimary: string,
     dataDomain: EIP712DomainType,
@@ -45,4 +45,20 @@ function authMiddleware<T>(
     return auth;
 }
 
-export default authMiddleware;
+export function starknetAuthhMiddleware<T>(
+    dataTypes: EIP712Types,
+    dataPrimary: string,
+    dataDomain: StarknetEIP712DomainType,
+): RequestHandler {
+    async function auth(
+        request: RequestWithSignature,
+        response: Response,
+        next: NextFunction,
+    ) {
+        console.log(dataTypes);
+        console.log(dataPrimary);
+        console.log(dataDomain);
+           }
+    return auth;
+}
+

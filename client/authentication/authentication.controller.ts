@@ -1,5 +1,5 @@
 import { Router, Request, Response, NextFunction } from "express";
-import authMiddleware from "../middleware/auth.middleware";
+import { authMiddleware, starknetAuthhMiddleware } from "../middleware/auth.middleware";
 import validationMiddleware from "../middleware/validation.middleware";
 import Controller from "../interfaces/controller.interface";
 import { RequestWithSignature } from "../interfaces/request.interface";
@@ -25,7 +25,7 @@ class AuthenticationController implements Controller {
         this.router.post(
             `${this.path}/action`,
             validationMiddleware(PlayerDetailsDto),
-            authMiddleware(
+            starknetAuthhMiddleware(
                 tradeParametersActionTypes,
                 `${tradeParametersActionTypeLabel}Tx`,
                 tradeParametersActionDomain,

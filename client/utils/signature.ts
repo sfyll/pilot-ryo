@@ -4,7 +4,7 @@ import { EIP712DomainType, EIP712Types } from "../interfaces/eip712.interface";
 import { keccak256 } from "viem";
 import { MessagePrefix } from "ethers";
 import { kcc } from "viem/chains";
-import { Signature, SignerInterface, WeierstrassSignatureType } from "starknet";
+import { Signature, SignerInterface, StarkNetDomain, TypedData, WeierstrassSignatureType } from "starknet";
 
 /*
  * Converts a uint8 array to a hexstring w/o the leading '0x'.
@@ -42,20 +42,34 @@ export async function signTypedDataStarknet(
     accountAddress: string,
     types: any,
     primaryType: string,
-    domain: EIP712DomainType,
+    domain: StarkNetDomain,
     message: any,
 ): Promise<Signature> {
-    console.log("types: ", types);
-    console.log("PrimaryType: ", primaryType);
-    console.log("Domain: ", domain);
-    console.log("message: ", message);
-    const messageHash = hashTypedData(types, primaryType, domain, message);
-    const messageHex: Hex = `0x${messageHash}`;
-    return walletClient.signMessage({
-        message: { raw: messageHex as `0x${string}` },
-        accountAddress
-    });
+    let typedData = getTypedData(types, primaryType, domain, message);
+    console.log(typedData)
+    return walletClient.signMessage(
+        typedData,
+         accountAddress
+    );
 }
+
+/*
+ * helper function to construct TypedData as specified in EIP712.
+ */
+export function getTypedData(
+    types: any,
+    primaryType: string, 
+    domain: EIP712DomainType | StarkNetDomain,
+    message: any,
+): TypedData {
+    return {
+        types, 
+        primaryType, 
+        domain,
+        message
+    }
+}
+
 /*
  * Recovers the address of a signed message.
  */

@@ -4,9 +4,14 @@ import { GraphQLWsLink } from "@apollo/client/link/subscriptions";
 import { createClient } from "graphql-ws";
 import { WebSocket } from "ws";
 
+import dotenv from "dotenv";
+dotenv.config();
+
 (global as any).WebSocket = WebSocket;
 
-export const apolloClient = createApolloClient();
+export let apolloClient: ApolloClient<NormalizedCacheObject> | undefined; 
+
+apolloClient = createApolloClient();
 
 export function createApolloClient() : ApolloClient<NormalizedCacheObject> {
   if (typeof apolloClient !== 'undefined') return apolloClient;
