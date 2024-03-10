@@ -1,20 +1,29 @@
-import { ApolloClient, InMemoryCache, HttpLink, split } from '@apollo/client/core';
+import { ApolloClient, InMemoryCache, HttpLink, split, NormalizedCacheObject } from '@apollo/client/core';
 import { getMainDefinition } from '@apollo/client/utilities';
 import { GraphQLWsLink } from "@apollo/client/link/subscriptions";
 import { createClient } from "graphql-ws";
-import 'cross-fetch/polyfill';
 import { WebSocket } from "ws";
 
+import dotenv from "dotenv";
+dotenv.config();
+
 (global as any).WebSocket = WebSocket;
-export function createApolloClient() {
-  
+
+export let apolloClient: ApolloClient<NormalizedCacheObject> | undefined; 
+
+apolloClient = createApolloClient();
+/*
+* Create apolloClient if an instance doesn't yet exist.
+*/
+export function createApolloClient() : ApolloClient<NormalizedCacheObject> {
+  if (typeof apolloClient !== 'undefined') return apolloClient;
   const httpLink = new HttpLink({
-      uri: 'http://0.0.0.0:8080/graphql',
+      uri: process.env.GQL_URL,
       fetch
   });
 
   const wsLink = new GraphQLWsLink(createClient({
-      url: 'ws://0.0.0.0:8080/graphql/ws',
+      url: process.env.GQL_URL_WSS as string,
       webSocketImpl: WebSocket,
   }));
 
@@ -37,5 +46,4 @@ const splitLink = split(
   return client;
 }
 
-export const apolloClient = createApolloClient();
 

@@ -2,27 +2,42 @@
   "name": "seismic",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
   "scripts": {
+    "clean": "find . -type f -name '*.js' -not -path './node_modules/*' -not -path './dist/*' -delete",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "npx tsc"
+    "build": "npx tsc",
+    "dev": "npx tsx server.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@types/node": "^20.11.24",
+    "@types/express": "^4.17.21",
+    "@types/jest": "^29.5.12",
+    "@types/node": "^20.11.25",
+    "@types/supertest": "^6.0.2",
     "@types/ws": "^8.5.10",
     "ts-node": "^10.9.2",
-    "typescript": "^5.3.3"
+    "typescript": "^5.4.2"
   },
   "dependencies": {
     "@apollo/client": "^3.9.5",
+    "axios": "^1.6.7",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.1",
     "cross-fetch": "^4.0.0",
+    "dotenv": "^16.4.5",
+    "eip-712": "^1.0.0",
     "ethers": "^6.11.1",
+    "express": "^4.18.3",
     "graphql": "^16.8.1",
     "graphql-ws": "^5.15.0",
-    "starknet": "^5.24.3",
+    "reflect-metadata": "^0.2.1",
+    "starknet": "^6.1.5",
+    "supertest": "^6.3.4",
+    "tsx": "^4.7.1",
+    "viem": "^2.7.20",
     "ws": "^8.16.0"
-  }
+  },
+  "type": "module"
 }
