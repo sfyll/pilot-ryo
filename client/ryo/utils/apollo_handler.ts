@@ -12,7 +12,9 @@ dotenv.config();
 export let apolloClient: ApolloClient<NormalizedCacheObject> | undefined; 
 
 apolloClient = createApolloClient();
-
+/*
+* Create apolloClient if an instance doesn't yet exist.
+*/
 export function createApolloClient() : ApolloClient<NormalizedCacheObject> {
   if (typeof apolloClient !== 'undefined') return apolloClient;
   const httpLink = new HttpLink({

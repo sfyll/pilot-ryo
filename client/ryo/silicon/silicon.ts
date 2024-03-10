@@ -1,6 +1,6 @@
 import { ApolloQueryResult, DocumentNode } from '@apollo/client/core';
 import { getOperationName } from '@apollo/client/utilities';
-import { apolloClient } from '../utils/subscription_manager';
+import { apolloClient } from '../utils/apollo_handler';
 import { MarketModelsResponse, EncryptedMarketModelsResponse } from "../../graphql/graphql";
 import { EncryptedMarketSilicon, MarketSilicon, TransparentMarketSilicon } from "./silidon.types";
 
@@ -19,6 +19,9 @@ export class Silicon<T extends MarketSilicon <bigint|number, bigint|number>> {
 }
 
 class TransparentSilicon extends Silicon<TransparentMarketSilicon> {
+    /*
+    * fetch RYO marketModels using graphql.
+    */
     async fetchMarkets() {
         try {
             const response: ApolloQueryResult<MarketModelsResponse> = await apolloClient.query<MarketModelsResponse>({
@@ -35,7 +38,6 @@ class TransparentSilicon extends Silicon<TransparentMarketSilicon> {
                 ))
                 .filter((market): market is TransparentMarketSilicon => market !== null)
                 .forEach(market => {
-                    // Use the uniqueKey method from the Market class to set the key
                     this.markets.set(market.uniqueKey, market);
                 });
 
@@ -46,6 +48,9 @@ class TransparentSilicon extends Silicon<TransparentMarketSilicon> {
 }
 
 class EncryptedSilicon extends Silicon<EncryptedMarketSilicon> {
+    /*
+    * fetch RYO encryptedMarketModels using graphql.
+    */
     async fetchMarkets() {
         try {
             const response: ApolloQueryResult<EncryptedMarketModelsResponse> = await apolloClient.query<EncryptedMarketModelsResponse>({
@@ -61,7 +66,6 @@ class EncryptedSilicon extends Silicon<EncryptedMarketSilicon> {
                 ))
                 .filter((market): market is EncryptedMarketSilicon => market !== null)
                 .forEach(market => {
-                    // Use the uniqueKey method from the Market class to set the key
                     this.markets.set(market.uniqueKey, market);
                 });
 
@@ -70,7 +74,9 @@ class EncryptedSilicon extends Silicon<EncryptedMarketSilicon> {
         }
     }
 }
-
+/*
+* Instantiate blinded and transparent silicon, and verify knowledge of the complete pre-image:image mapping.
+*/
 export async function instantiate_silicon(query: DocumentNode): Promise<Silicon<TransparentMarketSilicon> | Silicon<EncryptedMarketSilicon>> {
     let siliconInstance: Silicon<TransparentMarketSilicon> | Silicon<EncryptedMarketSilicon>;
 

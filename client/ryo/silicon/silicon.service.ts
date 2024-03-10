@@ -4,7 +4,7 @@ import { EncryptedMarketSilicon, TransparentMarketSilicon } from './silidon.type
 import IncorrectPlayerDataException from "../../exceptions/IncorrectPlayerDataException";
 import { get_player_details } from "../../graphql/silicon_query";
 import { PlayerData } from "./silidon.types";
-import { apolloClient } from "../utils/subscription_manager";
+import { apolloClient } from "../utils/apollo_handler";
 
 class SiliconService {
   
