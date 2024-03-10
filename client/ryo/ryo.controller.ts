@@ -1,16 +1,17 @@
-import { GET_ALL_MARKETS_QUERY, GET_ALL_ENCRYPTED_MARKETS_QUERY } from "./silicon/silicon_query";
+import { GET_ALL_MARKETS_QUERY, GET_ALL_ENCRYPTED_MARKETS_QUERY } from "../graphql/silicon_query";
 import { Silicon, instantiate_silicon } from "./silicon/silicon";
-import { verifySiliconMapping } from "./silicon/silicon_utils"; 
+import  SiliconService from "./silicon/silicon.service"; 
 
 import { Router, Request, Response } from "express";
 import Controller from "../interfaces/controller.interface";
-import { EncryptedMarketSilicon, TransparentMarketSilicon } from "./silicon/types";
+import { EncryptedMarketSilicon, TransparentMarketSilicon } from "./silicon/silidon.types";
 
 class RyoController implements Controller {
     public path = "/trade";
     public router = Router();
     private transparent_silicon: Silicon<TransparentMarketSilicon>;
     private encrypted_silicon: Silicon<EncryptedMarketSilicon>;
+    private silicon_service: SiliconService = new SiliconService();
 
     constructor() {
         this.initializeRoutes();
@@ -27,7 +28,7 @@ class RyoController implements Controller {
     public async initializeStates() {
         this.transparent_silicon = await instantiate_silicon(GET_ALL_MARKETS_QUERY) as Silicon<TransparentMarketSilicon>;
         this.encrypted_silicon = await instantiate_silicon(GET_ALL_ENCRYPTED_MARKETS_QUERY) as Silicon<EncryptedMarketSilicon>;
-        verifySiliconMapping(this.encrypted_silicon, this.transparent_silicon);
+        this.silicon_service.verifySiliconMapping(this.encrypted_silicon, this.transparent_silicon);
     }
 
     private ping = (req: Request, res: Response) => {
