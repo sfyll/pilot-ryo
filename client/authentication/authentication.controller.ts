@@ -1,15 +1,19 @@
 import { Router, Request, Response, NextFunction } from "express";
-import { authMiddleware, starknetAuthhMiddleware } from "../middleware/auth.middleware";
+import { isAddress } from "viem";
+
+import InvalidAddressException from "../exceptions/InvalidAddressException";
+import { starknetAuthhMiddleware } from "../middleware/auth.middleware";
 import validationMiddleware from "../middleware/validation.middleware";
 import Controller from "../interfaces/controller.interface";
 import { RequestWithSignature } from "../interfaces/request.interface";
 import AuthenticationService from "./authentication.service";
 import {
-    tradeParametersActionTypeLabel,
-    tradeParametersActionTypes,
-    tradeParametersActionDomain,
+    nonceActionDomain,
+    nonceActionTypes,
+    nonceActionTypeLabel,
 } from "./authentication.types";
-import { PlayerDetailsDto  } from "./authentication.dto";
+import { NonceDto, ActionDto } from "./authentication.dto";
+import { isStarknetAddress } from "../utils/starknetAddress";
 
 class AuthenticationController implements Controller {
     public path = "/authentication";
@@ -22,13 +26,18 @@ class AuthenticationController implements Controller {
     }
 
     private initializeRoutes() {
+        this.router.get(
+            `${this.path}/nonce`,
+            validationMiddleware(NonceDto),
+            this.nonce,
+        );
         this.router.post(
             `${this.path}/action`,
-            validationMiddleware(PlayerDetailsDto),
+            validationMiddleware(ActionDto),
             starknetAuthhMiddleware(
-                tradeParametersActionTypes,
-                `${tradeParametersActionTypeLabel}Tx`,
-                tradeParametersActionDomain,
+                nonceActionTypes,
+                `${nonceActionTypeLabel}Tx`,
+                nonceActionDomain,
             ),
             this.action,
         );
@@ -37,16 +46,22 @@ class AuthenticationController implements Controller {
     /*
      * Retrieves current nonce for requested address.
      */
-    //private trade_parameters = async (
-    //    request: Request,
-    //    response: Response,
-    //) => {
-    //    const address: string = request.body.address;
-    //        response.send({
-    //            nonce: this.authenticationService.fetchPlayer(address).toString(),
-    //        });
-    //        return;
-    //};
+    private nonce = async (
+        request: Request,
+        response: Response,
+        next: NextFunction,
+    ) => {
+        const address: string = request.body.address;
+        if (isAddress(address) || isStarknetAddress(address)) {
+            response.send({
+                nonce: this.authenticationService.getNonce(address).toString(),
+            });
+            return;
+        }
+        else {
+            next(new InvalidAddressException());
+        }
+    };
 
     /*
      * A dummy action function to test middlware during development. Doesn't do
