@@ -1,14 +1,11 @@
 import { RpcProvider, Account, WeierstrassSignatureType } from "starknet";  // Assuming these are the correct imports
+import axios from "axios";
 
 import dotenv from "dotenv";
 dotenv.config();
 
-import {
-    tradeParametersActionTypeLabel,
-    tradeParametersActionTypes,
-    tradeParametersActionDomain,
-} from "../authentication/authentication.types";
 import { signTypedDataStarknet } from "../utils/signature";
+import { size } from "viem";
 
 export async function setupDojoProvider():  Promise<Account | null>  { 
 
@@ -31,38 +28,67 @@ const message = {
 
 
 // Function to send signature to your endpoint
-async function sendSignatureToEndpoint(signature: WeierstrassSignatureType, address: string, tradeParametersActionTypes, tradeParametersActionTypeLabel, tradeParametersActionDomain, message) {
-    const url = `http://localhost:3000/authentication/action`; // Adjust the domain and port as necessary
+// async function sendSignatureToEndpoint(signature: WeierstrassSignatureType, address: string, tradeParametersActionTypes, tradeParametersActionTypeLabel, tradeParametersActionDomain, message) {
+//     const url = `http://localhost:3000/authentication/action`; // Adjust the domain and port as necessary
 
-    try {
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                // Include other headers as required, like authentication tokens
+//     try {
+//         const response = await fetch(url, {
+//             method: 'POST',
+//             headers: {
+//                 'Content-Type': 'application/json',
+//                 // Include other headers as required, like authentication tokens
+//             },
+//             body: JSON.stringify({
+//                 signature: signature,
+//                 // Include other body parameters as required
+//             }),
+//         });
+
+//         if (!response.ok) {
+//             throw new Error(`Error: ${response.status}`);
+//         }
+
+//         const data = await response.json();
+//         console.log('Response from server:', data);
+//     } catch (error) {
+//         console.error('Error sending signature to endpoint:', error);
+//     }
+// }
+
+// // Use this function where you want to send the signature
+// await sendSignatureToEndpoint(signature);
+
+
+
+// const signature = await signTypedDataStarknet(masterAccount.signer, masterAccount.address, tradeParametersActionTypes, tradeParametersActionTypeLabel, tradeParametersActionDomain, message) as WeierstrassSignatureType;
+
+// console.log("signature: ", signature)
+
+
+/*
+ * Seismic tracks a nonce for each wallet to avoid replay attacks. Note this is
+ * NOT the nonce that Ethereum tracks for the wallet.
+ */
+async function nonce(walletClient: any) {
+    console.log(walletClient.address)
+    console.log(size(walletClient))
+    const response = await axios.get(
+        `${process.env.ENDPOINT}/authentication/nonce`,
+        {
+            data: {
+                address: walletClient.address,
             },
-            body: JSON.stringify({
-                signature: signature,
-                // Include other body parameters as required
-            }),
-        });
-
-        if (!response.ok) {
-            throw new Error(`Error: ${response.status}`);
-        }
-
-        const data = await response.json();
-        console.log('Response from server:', data);
-    } catch (error) {
-        console.error('Error sending signature to endpoint:', error);
+        },
+    );
+    if (response.status !== 200) {
+        throw new Error(
+            "Could not get nonce for address",
+            walletClient.account.address,
+        );
     }
+    return response.data.nonce;
 }
 
-// Use this function where you want to send the signature
-await sendSignatureToEndpoint(signature);
+const nonceVal = await nonce(masterAccount)
 
-
-
-const signature = await signTypedDataStarknet(masterAccount.signer, masterAccount.address, tradeParametersActionTypes, tradeParametersActionTypeLabel, tradeParametersActionDomain, message) as WeierstrassSignatureType;
-
-console.log("signature: ", signature)
+console.log(nonceVal)
