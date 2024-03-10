@@ -1,10 +1,10 @@
-import { GET_ALL_MARKETS_QUERY, GET_ALL_ENCRYPTED_MARKETS_QUERY } from "../graphql/silicon_query";
+import { GET_ALL_MARKETS_QUERY, GET_ALL_BLINDED_MARKETS_QUERY } from "../graphql/silicon_query";
 import { Silicon, instantiate_silicon } from "./silicon/silicon";
 import  SiliconService from "./silicon/silicon.service"; 
 
 import { Router, Request, Response, RequestHandler } from "express";
 import Controller from "../interfaces/controller.interface";
-import { EncryptedMarketSilicon, TransparentMarketSilicon } from "./silicon/silidon.types";
+import { BlindedMarketSilicon, TransparentMarketSilicon } from "./silicon/silidon.types";
 
 import { starknetAuthhMiddleware } from "../middleware/auth.middleware";
 import validationMiddleware from "../middleware/validation.middleware";
@@ -15,7 +15,7 @@ class RyoController implements Controller {
     public path = "/trade";
     public router = Router();
     private transparent_silicon: Silicon<TransparentMarketSilicon>;
-    private encrypted_silicon: Silicon<EncryptedMarketSilicon>;
+    private encrypted_silicon: Silicon<BlindedMarketSilicon>;
     private silicon_service: SiliconService = new SiliconService();
 
     constructor() {
@@ -41,7 +41,7 @@ class RyoController implements Controller {
     */
     public async initializeStates() {
         this.transparent_silicon = await instantiate_silicon(GET_ALL_MARKETS_QUERY) as Silicon<TransparentMarketSilicon>;
-        this.encrypted_silicon = await instantiate_silicon(GET_ALL_ENCRYPTED_MARKETS_QUERY) as Silicon<EncryptedMarketSilicon>;
+        this.encrypted_silicon = await instantiate_silicon(GET_ALL_BLINDED_MARKETS_QUERY) as Silicon<BlindedMarketSilicon>;
         this.silicon_service.verifySiliconMapping(this.encrypted_silicon, this.transparent_silicon);
     }
 

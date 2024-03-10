@@ -2,7 +2,7 @@ import { ApolloQueryResult, DocumentNode } from '@apollo/client/core';
 import { getOperationName } from '@apollo/client/utilities';
 import { apolloClient } from '../utils/apollo_handler';
 import { MarketModelsResponse, EncryptedMarketModelsResponse } from "../../graphql/graphql";
-import { EncryptedMarketSilicon, MarketSilicon, TransparentMarketSilicon } from "./silidon.types";
+import { BlindedMarketSilicon, MarketSilicon, TransparentMarketSilicon } from "./silidon.types";
 
 export class Silicon<T extends MarketSilicon <bigint|number, bigint|number>> {
     protected query: any;
@@ -47,7 +47,7 @@ class TransparentSilicon extends Silicon<TransparentMarketSilicon> {
     }
 }
 
-class EncryptedSilicon extends Silicon<EncryptedMarketSilicon> {
+class EncryptedSilicon extends Silicon<BlindedMarketSilicon> {
     /*
     * fetch RYO encryptedMarketModels using graphql.
     */
@@ -57,14 +57,14 @@ class EncryptedSilicon extends Silicon<EncryptedMarketSilicon> {
                 query: this.query,
             });
             response.data.encryptedMarketModels.edges
-                .map(edge => new EncryptedMarketSilicon(
+                .map(edge => new BlindedMarketSilicon(
                     edge.node!.game_id,
                     edge.node!.location_id,
                     edge.node!.drug_id,
                     edge.node!.cash,
                     edge.node!.quantity
                 ))
-                .filter((market): market is EncryptedMarketSilicon => market !== null)
+                .filter((market): market is BlindedMarketSilicon => market !== null)
                 .forEach(market => {
                     this.markets.set(market.uniqueKey, market);
                 });
@@ -77,8 +77,8 @@ class EncryptedSilicon extends Silicon<EncryptedMarketSilicon> {
 /*
 * Instantiate blinded and transparent silicon, and verify knowledge of the complete pre-image:image mapping.
 */
-export async function instantiate_silicon(query: DocumentNode): Promise<Silicon<TransparentMarketSilicon> | Silicon<EncryptedMarketSilicon>> {
-    let siliconInstance: Silicon<TransparentMarketSilicon> | Silicon<EncryptedMarketSilicon>;
+export async function instantiate_silicon(query: DocumentNode): Promise<Silicon<TransparentMarketSilicon> | Silicon<BlindedMarketSilicon>> {
+    let siliconInstance: Silicon<TransparentMarketSilicon> | Silicon<BlindedMarketSilicon>;
 
     const operationName = getOperationName(query) 
 

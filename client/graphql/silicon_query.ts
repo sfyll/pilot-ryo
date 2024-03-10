@@ -21,7 +21,7 @@ export const GET_ALL_MARKETS_QUERY = gql`
     }
 `;
 
-export const GET_ALL_ENCRYPTED_MARKETS_QUERY = gql`
+export const GET_ALL_BLINDED_MARKETS_QUERY = gql`
     query GetAllEncryptedMarkets {
         encryptedMarketModels(first: 36) {
             edges {

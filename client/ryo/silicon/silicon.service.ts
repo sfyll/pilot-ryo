@@ -1,6 +1,6 @@
 import { Silicon } from './silicon'; 
 import { poseidonHashMany } from "@scure/starknet";
-import { EncryptedMarketSilicon, TransparentMarketSilicon } from './silidon.types';
+import { BlindedMarketSilicon, TransparentMarketSilicon } from './silidon.types';
 import IncorrectPlayerDataException from "../../exceptions/IncorrectPlayerDataException";
 import { get_player_details } from "../../graphql/silicon_query";
 import { PlayerData } from "./silidon.types";
@@ -11,7 +11,7 @@ class SiliconService {
   /*
   * Check that we have a bijection between both maps. 
   */
-  public verifySiliconMapping(encrypted_silicon: Silicon<EncryptedMarketSilicon>, transparent_silicon: Silicon<TransparentMarketSilicon>): boolean {
+  public verifySiliconMapping(encrypted_silicon: Silicon<BlindedMarketSilicon>, transparent_silicon: Silicon<TransparentMarketSilicon>): boolean {
       if (encrypted_silicon.markets.size !== transparent_silicon.markets.size) return false;
 
       for (const [key, encrypted_market] of encrypted_silicon.markets.entries()) {
