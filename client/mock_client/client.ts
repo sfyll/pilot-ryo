@@ -16,10 +16,7 @@ export async function setupDojoProvider():  Promise<Account | null>  {
     const rpcProvider = new RpcProvider({
         nodeUrl: process.env.RPC_URL,
     });
-
-    let tp = rpcProvider.getBlockNumber()
-
-    console.log(tp)
+    
     return new Account(rpcProvider, process.env.USER_ADDRESS as string, process.env.USER_PRIVKEY as string, "1");
 }
 

@@ -46,9 +46,6 @@ export async function signTypedDataStarknet(
     message: any,
 ): Promise<Signature> {
     let typedDataToValidate = getStarknetTypedDataWithMessage(types, primaryType, domain, message);
-    console.log("typedData: ", typedDataToValidate)
-    let msgHash = typedData.getMessageHash(typedDataToValidate, walletClient.address)  
-    console.log("hash:  ", msgHash)
     return walletClient.signMessage(
         typedDataToValidate
     );
