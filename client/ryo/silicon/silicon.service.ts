@@ -11,10 +11,10 @@ class SiliconService {
   /*
   * Check that we have a bijection between both maps. 
   */
-  public verifySiliconMapping(encrypted_silicon: Silicon<BlindedMarketSilicon>, transparent_silicon: Silicon<TransparentMarketSilicon>): boolean {
-      if (encrypted_silicon.markets.size !== transparent_silicon.markets.size) return false;
+  public verifySiliconMapping(blinded_silicon: Silicon<BlindedMarketSilicon>, transparent_silicon: Silicon<TransparentMarketSilicon>): boolean {
+      if (blinded_silicon.markets.size !== transparent_silicon.markets.size) return false;
 
-      for (const [key, encrypted_market] of encrypted_silicon.markets.entries()) {
+      for (const [key, blinded_market] of blinded_silicon.markets.entries()) {
           const transparent_market = transparent_silicon.markets.get(key);
 
           if (!transparent_market) return false;
@@ -22,7 +22,7 @@ class SiliconService {
           const hashCash = poseidonHashMany([BigInt(transparent_market.cash)]);
           const hashQuantity = poseidonHashMany([BigInt(transparent_market.quantity)]);
 
-          if (BigInt(encrypted_market.cash) !== hashCash || BigInt(encrypted_market.quantity) !== hashQuantity) return false;
+          if (BigInt(blinded_market.cash) !== hashCash || BigInt(blinded_market.quantity) !== hashQuantity) return false;
     }
     return true;
   }

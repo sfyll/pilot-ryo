@@ -26,7 +26,7 @@ export class MarketSilicon<TCashType, TQuantityType> {
 }
 
 /*
- * Extend the base Market for EncryptedMarket with specific types for cash and quantity.
+ * Extend the base Market for BlindedMarket with specific types for cash and quantity.
  */
 export class BlindedMarketSilicon extends MarketSilicon<bigint, bigint> {}
 

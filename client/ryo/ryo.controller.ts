@@ -15,7 +15,7 @@ class RyoController implements Controller {
     public path = "/trade";
     public router = Router();
     private transparent_silicon: Silicon<TransparentMarketSilicon>;
-    private encrypted_silicon: Silicon<BlindedMarketSilicon>;
+    private blinded_silicon: Silicon<BlindedMarketSilicon>;
     private silicon_service: SiliconService = new SiliconService();
 
     constructor() {
@@ -36,13 +36,13 @@ class RyoController implements Controller {
     }
 
     /*
-     * Initializes both Encrypted and Transparent States.
+     * Initializes both Blinded and Transparent States.
      * Constrains Controller to have knowledge of all pre-images.
     */
     public async initializeStates() {
         this.transparent_silicon = await instantiate_silicon(GET_ALL_MARKETS_QUERY) as Silicon<TransparentMarketSilicon>;
-        this.encrypted_silicon = await instantiate_silicon(GET_ALL_BLINDED_MARKETS_QUERY) as Silicon<BlindedMarketSilicon>;
-        this.silicon_service.verifySiliconMapping(this.encrypted_silicon, this.transparent_silicon);
+        this.blinded_silicon = await instantiate_silicon(GET_ALL_BLINDED_MARKETS_QUERY) as Silicon<BlindedMarketSilicon>;
+        this.silicon_service.verifySiliconMapping(this.blinded_silicon, this.transparent_silicon);
     }
 
     private ping = (req: Request, res: Response) => {
