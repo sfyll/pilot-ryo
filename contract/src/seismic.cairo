@@ -88,3 +88,4 @@ mod tests {
         dispatcher.verify_signature(commitment, signature);
     }
 }
+
