@@ -2,9 +2,9 @@ import { GET_ALL_MARKETS_QUERY, GET_ALL_BLINDED_MARKETS_QUERY } from "../graphql
 import { Silicon, instantiate_silicon } from "./silicon/silicon";
 import  SiliconService from "./silicon/silicon.service"; 
 
-import { Router, Request, Response, RequestHandler } from "express";
+import { Router, Request, Response, NextFunction } from "express";
 import Controller from "../interfaces/controller.interface";
-import { BlindedMarketSilicon, TransparentMarketSilicon } from "./silicon/silidon.types";
+import { BlindedMarketSilicon, TransparentMarketSilicon, PlayerData } from "./silicon/silicon.types";
 
 import { starknetAuthhMiddleware } from "../middleware/auth.middleware";
 import validationMiddleware from "../middleware/validation.middleware";
@@ -31,7 +31,7 @@ class RyoController implements Controller {
                         tradeParametersDAReqTyped.primaryType,
                         tradeParametersDAReqTyped.domain,
                     ),
-                    this.ping,
+                    this.tradeParameters,
                 );
     }
 
@@ -48,6 +48,26 @@ class RyoController implements Controller {
     private ping = (req: Request, res: Response) => {
         res.status(200).send({ message: 'Pong!' });
     };
+
+    private tradeParameters = async (
+        request: Request,
+        response: Response,
+        next: NextFunction,
+    ) => {
+        const address: string = request.body.tx.player_id as string;
+        const game_id: number = Number(request.body.tx.game_id) ;
+        let playerData: PlayerData = await this.silicon_service.fetchPlayer(game_id, address);
+        if (playerData.location_id == "Home") {
+            return response.status(404).send({
+                message: "No market at home location"
+            })
+        }
+        else {
+            const pricePerDrugId = await this.silicon_service.fetchMarketPrices(playerData.game_id, playerData.location_id);
+            response.json(pricePerDrugId);
+        }
+        };
+
 }
 
 export async function getRyoController(): Promise<RyoController> {

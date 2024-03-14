@@ -49,12 +49,26 @@ export const get_player_details = gql`
           node {
             game_id
             player_id
+            location_id
           }
         }
       }
     }
 `;
 
-
+export const get_markets_per_game_id = gql`
+                query MarketPrices($gameId: Int!) {
+                    marketModels(first: 36, where: {game_id: $gameId}) {
+                        edges {
+                            node {
+                                drug_id
+                                location_id
+                                quantity
+                                cash
+                            }
+                        }
+                    }
+                }
+            `
 
 

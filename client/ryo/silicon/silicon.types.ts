@@ -39,4 +39,21 @@ export class TransparentMarketSilicon extends MarketSilicon<number, number> {}
 export interface PlayerData {
   game_id: number;
   player_id: string;
+  location_id: string;
+}
+
+
+export interface MarketPricesPerDrugId {
+    [drug_id: string]: {
+        cash: string,
+        quantity: number,
+        location_id: string
+    }
+}
+
+export interface MarketPrice {
+  drug_id: string;
+  cash: string;
+  quantity: number;
+  location_id: string;
 }

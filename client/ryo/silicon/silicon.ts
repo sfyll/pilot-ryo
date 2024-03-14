@@ -2,7 +2,7 @@ import { ApolloQueryResult, DocumentNode } from '@apollo/client/core';
 import { getOperationName } from '@apollo/client/utilities';
 import { apolloClient } from '../utils/apollo_handler';
 import { MarketModelsResponse, BlindedMarketModelsResponse } from "../../graphql/graphql";
-import { BlindedMarketSilicon, MarketSilicon, TransparentMarketSilicon } from "./silidon.types";
+import { BlindedMarketSilicon, MarketSilicon, TransparentMarketSilicon } from "./silicon.types";
 
 export class Silicon<T extends MarketSilicon <bigint|number, bigint|number>> {
     protected query: any;

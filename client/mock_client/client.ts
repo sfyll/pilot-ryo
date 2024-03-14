@@ -28,7 +28,7 @@ async function nonce(walletClient: any) {
     const response = await axios.get(
         `${process.env.ENDPOINT}/authentication/nonce`,
         {
-            data: {
+            params: {
                 address: walletClient.address,
             },
         },
@@ -71,6 +71,7 @@ async function runDemo() {
     }
     console.log("response: ", response.data);
 }
+
 
 (async () => {
     await runDemo();

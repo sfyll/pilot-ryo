@@ -1,10 +1,11 @@
 import { Silicon } from './silicon'; 
 import { poseidonHashMany } from "@scure/starknet";
-import { BlindedMarketSilicon, TransparentMarketSilicon } from './silidon.types';
+import { BlindedMarketSilicon, MarketPrice, MarketPricesPerDrugId, TransparentMarketSilicon } from './silicon.types';
 import IncorrectPlayerDataException from "../../exceptions/IncorrectPlayerDataException";
-import { get_player_details } from "../../graphql/silicon_query";
-import { PlayerData } from "./silidon.types";
+import { get_player_details, get_markets_per_game_id } from "../../graphql/silicon_query";
+import { PlayerData } from "./silicon.types";
 import { apolloClient } from "../utils/apollo_handler";
+import { Market, MarketEdge } from '../../graphql/graphql';
 
 class SiliconService {
   
@@ -28,7 +29,7 @@ class SiliconService {
   }
 
   /*
-  * Returns player_id and game_id as seen by the playerModel on-chain.
+  * Returns player_id, game_id and location_id as seen by the playerModel on-chain.
   * Errors can be further refined, tbd post v1 poc.
   */
  public async fetchPlayer(game_id: number, player_id: string): Promise<PlayerData> {
@@ -40,10 +41,13 @@ class SiliconService {
                      game_id: game_id,
                      player_id: player_id
                  }
-             }
+             },
+             fetchPolicy: "no-cache"
+
          });
 
          const player = response.data.playerModels.edges[0]?.node;
+
          if (!player) {
              throw new IncorrectPlayerDataException;
          }
@@ -52,6 +56,38 @@ class SiliconService {
          throw new IncorrectPlayerDataException;
       } 
  }
+
+/*
+* returns marketPrices per drug at the specified location_id; 
+*/
+public async fetchMarketPrices(game_id: number, location_id: string): Promise<MarketPricesPerDrugId> {
+    try {
+        const response = await apolloClient.query({
+            query: get_markets_per_game_id,
+            variables: {
+                gameId: game_id
+            }
+        });
+
+        const marketModels = response.data.marketModels.edges.map((edge: MarketEdge) => edge.node);
+
+        const filteredMarketModels = marketModels.filter((model: Market) => model.location_id === location_id);
+
+        if (filteredMarketModels.length === 0) {
+            throw new Error('No market models found for the specified location_id.');
+        }
+
+        const marketPricesMapping: MarketPricesPerDrugId = filteredMarketModels.reduce((acc: MarketPricesPerDrugId, {drug_id, cash, quantity, location_id}: MarketPrice) => {
+            acc[drug_id] = { cash, quantity, location_id };             
+        return acc; 
+        }, {});
+
+        return marketPricesMapping;
+    } catch (error) {
+        throw new Error('Failed to fetch market prices.');
+    }
+}
+
 
 }
 
