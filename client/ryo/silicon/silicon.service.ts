@@ -2,12 +2,60 @@ import { Silicon } from './silicon';
 import { poseidonHashMany } from "@scure/starknet";
 import { BlindedMarketSilicon, MarketPrice, MarketPricesPerDrugId, TransparentMarketSilicon } from './silicon.types';
 import IncorrectPlayerDataException from "../../exceptions/IncorrectPlayerDataException";
-import { get_player_details, get_markets_per_game_id } from "../../graphql/silicon_query";
+import { get_player_details, get_markets_per_game_id, subscribe_to_all_world_events } from "../../graphql/silicon_query";
 import { PlayerData } from "./silicon.types";
 import { apolloClient } from "../utils/apollo_handler";
 import { Market, MarketEdge } from '../../graphql/graphql';
+import { parseEvent } from '../../graphql/events/events';
+import { BoughtData, SoldData, WorldEvents } from '../../graphql/events/contractEvents';
+import { Trade } from '../ryo.types';
 
 class SiliconService {
+    private stagedTrades: Map<string, Trade> = new Map();
+    
+    constructor(updateMarket: (trade: Trade) => void) {
+        this.initializeWorldListener(updateMarket);
+    }
+
+    private initializeWorldListener(updateMarket: (trade: Trade) => void) {
+        console.log(
+            " == Starting listening on worldEvents " 
+        );
+        
+        apolloClient.subscribe({
+        query: subscribe_to_all_world_events,
+        }).subscribe({
+          next: (response) => {
+            const event = response.data.eventEmitted;
+            const parsedEvent = parseEvent(event);
+            if (this.isBoughtOrSoldData(parsedEvent)){
+                const key = this.getUniqueTradeKey(parsedEvent.gameId, parsedEvent.drugId, parsedEvent.playerId); 
+                if (this.stagedTrades.has(key)){
+                    const trade = this.stagedTrades.get(key) as Trade;
+                    updateMarket(trade);
+                }
+            }
+          },
+          error(err) { console.error('Error in subscription:', err); },
+        });
+    }
+
+    private isBoughtOrSoldData(event: any): event is BoughtData | SoldData {
+      return event && 
+        (event.eventType === WorldEvents.Bought || event.eventType === WorldEvents.Sold) &&
+        'eventType' in event &&
+        'eventName' in event &&
+        'gameId' in event && 
+        'playerId' in event && 
+        'drugId' in event && 
+        'quantity' in event && 
+        'cost' in event;
+    }
+
+    private  getUniqueTradeKey(game_id: number, drug_id: String, player_id: string): string {
+        return `${game_id}-${drug_id}-${player_id}`;
+    }
+
   
   /*
   * Check that we have a bijection between both maps. 
