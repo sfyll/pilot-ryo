@@ -71,4 +71,13 @@ export const get_markets_per_game_id = gql`
                 }
             `
 
-
+export const subscribe_to_all_world_events = gql`
+    subscription {
+      eventEmitted {
+        id
+        keys
+        data
+        transactionHash
+      }
+    }
+`
