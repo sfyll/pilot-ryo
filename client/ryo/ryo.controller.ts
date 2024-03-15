@@ -9,7 +9,8 @@ import { BlindedMarketSilicon, TransparentMarketSilicon, PlayerData } from "./si
 import { starknetAuthhMiddleware } from "../middleware/auth.middleware";
 import validationMiddleware from "../middleware/validation.middleware";
 import { TradeParametersDADto} from "./ryo.dto";
-import { tradeParametersDAReqTyped } from "./ryo.types";
+import { tradeParametersDAReqTyped, RequestWithTrade} from "./ryo.types";
+import { StarknetRequestWithSignature } from "../interfaces/request.interface";
 
 class RyoController implements Controller {
     public path = "/trade";
@@ -50,7 +51,7 @@ class RyoController implements Controller {
     };
 
     private tradeParameters = async (
-        request: Request,
+        request: StarknetRequestWithSignature,
         response: Response,
         next: NextFunction,
     ) => {
@@ -58,7 +59,7 @@ class RyoController implements Controller {
         const game_id: number = Number(request.body.tx.game_id) ;
         let playerData: PlayerData = await this.silicon_service.fetchPlayer(game_id, address);
         if (playerData.location_id == "Home") {
-            return response.status(404).send({
+            return response.status(200).send({
                 message: "No market at home location"
             })
         }
@@ -67,7 +68,36 @@ class RyoController implements Controller {
             response.json(pricePerDrugId);
         }
         };
+    /*
+    * Stores the pre-image of a swipe and returns a data availability
+    * signature.
+    */
+    private davail = async (
+        request: RequestWithTrade,
+        response: Response,
+        next: NextFunction,
+    ) => {
+        //const swipeHash = this.swipeService.store(
+        //    request.body.sender!,
+        //    request.body.tx.body,
+        //);
+        //const [signature, err] = await handleAsync(
+        //    this.walletClient.signMessage({
+        //        account: this.daAccount,
+        //        message: { raw: `0x${swipeHash}` as `0x${string}` },
+        //    }),
+        //);
 
+        //if (signature === null || err) {
+        //    console.error("[ERROR] Failed to sign typed data:", err);
+        //}
+        //response.send({ commitment: swipeHash, signature });
+    };
+    private logRequestDetails = (req: Request, _: Response, next: NextFunction) => {
+        const now = new Date();
+        console.log(`Received request for ${req.path} at ${now.toISOString()}`);
+        next();
+    };
 }
 
 export async function getRyoController(): Promise<RyoController> {
