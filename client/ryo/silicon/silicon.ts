@@ -3,6 +3,8 @@ import { getOperationName } from '@apollo/client/utilities';
 import { apolloClient } from '../utils/apollo_handler';
 import { MarketModelsResponse, BlindedMarketModelsResponse } from "../../graphql/graphql";
 import { BlindedMarketSilicon, MarketSilicon, TransparentMarketSilicon } from "./silicon.types";
+import { Trade } from '../ryo.types';
+import { poseidonHashMany } from "@scure/starknet";
 
 export class Silicon<T extends MarketSilicon <bigint|number, bigint|number>> {
     protected query: any;
@@ -44,6 +46,20 @@ class TransparentSilicon extends Silicon<TransparentMarketSilicon> {
         } catch (error) {
             console.error('Error fetching transparent markets:', error);
         }
+    }
+
+    public updateMarket(trade: Trade) {
+        const key = `${trade.game_id}-${trade.location_id}-${trade.drug_id}`
+        
+        const market = new TransparentMarketSilicon(
+            trade.game_id,
+            trade.location_id,
+            trade.game_id,
+            trade.cash,
+            trade.quantity
+        )
+
+        this.markets.set(key, market)  
     }
 }
 
