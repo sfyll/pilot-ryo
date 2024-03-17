@@ -3,4 +3,8 @@ target/
 .DS_Store
 .env
 dist/
+<<<<<<< HEAD
+=======
+.snfoundry_cache/
+>>>>>>> origin/smart_contract
 
