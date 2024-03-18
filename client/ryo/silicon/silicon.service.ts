@@ -1,14 +1,13 @@
-import { Silicon } from './silicon'; 
 import { poseidonHashMany } from "@scure/starknet";
-import { BlindedMarketSilicon, MarketPrice, MarketPricesPerDrugId, TransparentMarketSilicon } from './silicon.types';
+import { BlindedMarketPrice, BlindedMarketPricesPerDrugId, MarketPrice, MarketPricesPerDrugId, Trade } from './silicon.types';
 import IncorrectPlayerDataException from "../../exceptions/IncorrectPlayerDataException";
-import { get_player_details, get_markets_per_game_id, subscribe_to_all_world_events } from "../../graphql/silicon_query";
+import { get_player_details, get_markets_per_game_id, subscribe_to_all_world_events, get_blinded_markets_per_game_id } from "../../graphql/silicon_query";
 import { PlayerData } from "./silicon.types";
 import { apolloClient } from "../utils/apollo_handler";
-import { Market, MarketEdge } from '../../graphql/graphql';
+import { BlindedMarket, BlindedMarketEdge, Market, MarketEdge } from '../../graphql/graphql';
 import { parseEvent } from '../../graphql/events/events';
 import { BoughtData, SoldData, WorldEvents } from '../../graphql/events/contractEvents';
-import { Trade } from '../ryo.types';
+import { BlindedSilicon, TransparentSilicon } from "./silicon";
 
 class SiliconService {
     private stagedTrades: Map<string, Trade> = new Map();
@@ -20,8 +19,7 @@ class SiliconService {
     private initializeWorldListener(updateMarket: (trade: Trade) => void) {
         console.log(
             " == Starting listening on worldEvents " 
-        );
-        
+        ); 
         apolloClient.subscribe({
         query: subscribe_to_all_world_events,
         }).subscribe({
@@ -55,12 +53,11 @@ class SiliconService {
     private  getUniqueTradeKey(game_id: number, drug_id: String, player_id: string): string {
         return `${game_id}-${drug_id}-${player_id}`;
     }
-
   
   /*
   * Check that we have a bijection between both maps. 
   */
-  public verifySiliconMapping(blinded_silicon: Silicon<BlindedMarketSilicon>, transparent_silicon: Silicon<TransparentMarketSilicon>): boolean {
+  public verifySiliconMapping(blinded_silicon: BlindedSilicon, transparent_silicon: TransparentSilicon): boolean {
       if (blinded_silicon.markets.size !== transparent_silicon.markets.size) return false;
 
       for (const [key, blinded_market] of blinded_silicon.markets.entries()) {
@@ -136,7 +133,43 @@ public async fetchMarketPrices(game_id: number, location_id: string): Promise<Ma
     }
 }
 
+/*
+* returns marketPrices per drug at the specified location_id; 
+*/
+public async fetchBlindedMarketPrices(game_id: number, location_id: string): Promise<BlindedMarketPricesPerDrugId> {
+    try {
+        const response = await apolloClient.query({
+            query: get_blinded_markets_per_game_id,
+            variables: {
+                gameId: game_id
+            }
+        });
+        const marketModels = response.data.blindedMarketModels.edges.map((edge: BlindedMarketEdge) => edge.node);
+
+        const filteredMarketModels = marketModels.filter((model: BlindedMarket) => model.location_id === location_id);
+
+        if (filteredMarketModels.length === 0) {
+            throw new Error('No market models found for the specified location_id.');
+        }
+        const marketPricesMapping: BlindedMarketPricesPerDrugId = filteredMarketModels.reduce((acc: BlindedMarketPricesPerDrugId, {drug_id, cash, quantity, location_id}: BlindedMarketPrice) => {
+            acc[drug_id] = { cash, quantity, location_id };             
+        return acc; 
+        }, {});
+        return marketPricesMapping;
+    } catch (error) {
+        throw new Error('Failed to fetch market prices with error');
+    }
+}
+
+public async fetchMarketPrice(playerData: PlayerData, drug_id: string): Promise<BlindedMarketPrice> {
+    const blindedMarkets = await this.fetchBlindedMarketPrices(playerData.game_id, playerData.location_id);
+    return { drug_id:drug_id, 
+             cash: blindedMarkets[drug_id].cash, 
+             quantity: blindedMarkets[drug_id].quantity,
+             location_id: playerData.location_id } as BlindedMarketPrice;
 
 }
 
+}
 export default SiliconService;
+
