@@ -57,8 +57,9 @@ export const TradeTypes = [
     { name: "player_id", type: "felt" },
     { name: "game_id", type: "felt" },
     { name: "drug_id", type: "felt" },
+    { name: "new_cash", type: "felt" },
+    { name: "new_quantity", type: "felt" },
 ]
-
 export const tradeActionTypeLabel = "Trade";
 export const tradeActionTypes = createEIP712TypesNoBodyStarknet(tradeActionTypeLabel, TradeTypes);
 export const tradeActionDomain = createStarknetEIP712DomainType("SeismicRyo");
