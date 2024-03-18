@@ -14,7 +14,7 @@ function validationMiddleware<T>(
     target: 'body' | 'query' = 'body'
 ): RequestHandler {
     return (req, res, next) => {
-        const dataToValidate = target === 'body' ? req.body : req.query;      
+        const dataToValidate = target === 'body' ? req.body : req.query;
         validate(plainToClass(type, dataToValidate), { skipMissingProperties }).then(
             (errors: ValidationError[]) => {
                 if (errors.length > 0) {
