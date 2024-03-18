@@ -1,23 +1,32 @@
 import { GET_ALL_MARKETS_QUERY, GET_ALL_BLINDED_MARKETS_QUERY } from "../graphql/silicon_query";
-import { Silicon, instantiate_silicon } from "./silicon/silicon";
+import { BlindedSilicon, TransparentSilicon, instantiate_silicon } from "./silicon/silicon";
 import  SiliconService from "./silicon/silicon.service"; 
 
 import { Router, Request, Response, NextFunction } from "express";
 import Controller from "../interfaces/controller.interface";
-import { BlindedMarketSilicon, TransparentMarketSilicon, PlayerData } from "./silicon/silicon.types";
+import { PlayerData } from "./silicon/silicon.types";
 
 import { starknetAuthhMiddleware } from "../middleware/auth.middleware";
 import validationMiddleware from "../middleware/validation.middleware";
-import { TradeParametersDADto} from "./ryo.dto";
-import { tradeParametersDAReqTyped, RequestWithTrade} from "./ryo.types";
+import { TradeDADto, TradeParametersDADto} from "./ryo.dto";
+import { tradeParametersDAReqTyped, tradeDAReqTyped, tradeDAActionTypes, tradeDAActionTypeLabel, tradeDAActionDomain} from "./ryo.types";
 import { StarknetRequestWithSignature } from "../interfaces/request.interface";
+import { getMessageHash, signTypedDataStarknet } from "../utils/signature";
+import { Account } from "starknet";
+import { setupDojoProviderSeismic } from "./utils/starknet_handler";
+import { stringifyBigInts } from "../utils/bigint";
+
+import dotenv from "dotenv";
+dotenv.config();
 
 class RyoController implements Controller {
     public path = "/trade";
     public router = Router();
-    private transparent_silicon: Silicon<TransparentMarketSilicon>;
-    private blinded_silicon: Silicon<BlindedMarketSilicon>;
-    private silicon_service: SiliconService = new SiliconService();
+    private transparent_silicon: TransparentSilicon;
+    private blinded_silicon: BlindedSilicon;
+    private silicon_service: SiliconService;
+    private walletClient: Account
+    private seismicStarknetContractAddress: string = process.env.CONTRACT_ADDRESS as string; 
 
     constructor() {
         this.initializeRoutes();
@@ -34,6 +43,24 @@ class RyoController implements Controller {
                     ),
                     this.tradeParameters,
                 );
+        this.router.post(
+                    `${this.path}/tradeDavail`,
+                    validationMiddleware(TradeDADto),
+                    this.logRequestDetails,
+                    starknetAuthhMiddleware(
+                        tradeDAReqTyped.types,
+                        tradeDAReqTyped.primaryType,
+                        tradeDAReqTyped.domain,
+                    ),
+                    this.logRequestDetails,
+                    this.tradeDavail,
+                );
+
+        this.router.get(`${this.path}/getseismicaddress`, (_, res) => {
+            res.send({
+                seismicStarknetContractAddress: this.seismicStarknetContractAddress,
+            });
+        });
     }
 
     /*
@@ -41,9 +68,14 @@ class RyoController implements Controller {
      * Constrains Controller to have knowledge of all pre-images.
     */
     public async initializeStates() {
-        this.transparent_silicon = await instantiate_silicon(GET_ALL_MARKETS_QUERY) as Silicon<TransparentMarketSilicon>;
-        this.blinded_silicon = await instantiate_silicon(GET_ALL_BLINDED_MARKETS_QUERY) as Silicon<BlindedMarketSilicon>;
+        this.transparent_silicon = await instantiate_silicon(GET_ALL_MARKETS_QUERY) as TransparentSilicon;
+        this.blinded_silicon = await instantiate_silicon(GET_ALL_BLINDED_MARKETS_QUERY) as BlindedSilicon;
+        this.silicon_service = new SiliconService(this.transparent_silicon.updateMarket)
         this.silicon_service.verifySiliconMapping(this.blinded_silicon, this.transparent_silicon);
+    }
+
+    public async initializeClient() {
+        this.walletClient = await setupDojoProviderSeismic();
     }
 
     private ping = (req: Request, res: Response) => {
@@ -55,9 +87,7 @@ class RyoController implements Controller {
         response: Response,
         next: NextFunction,
     ) => {
-        const address: string = request.body.tx.player_id as string;
-        const game_id: number = Number(request.body.tx.game_id) ;
-        let playerData: PlayerData = await this.silicon_service.fetchPlayer(game_id, address);
+        const playerData = await this.fetchPlayerData(request);
         if (playerData.location_id == "Home") {
             return response.status(200).send({
                 message: "No market at home location"
@@ -72,37 +102,43 @@ class RyoController implements Controller {
     * Stores the pre-image of a swipe and returns a data availability
     * signature.
     */
-    private davail = async (
-        request: RequestWithTrade,
+    private tradeDavail = async (
+        request: StarknetRequestWithSignature,
         response: Response,
         next: NextFunction,
     ) => {
-        //const swipeHash = this.swipeService.store(
-        //    request.body.sender!,
-        //    request.body.tx.body,
-        //);
-        //const [signature, err] = await handleAsync(
-        //    this.walletClient.signMessage({
-        //        account: this.daAccount,
-        //        message: { raw: `0x${swipeHash}` as `0x${string}` },
-        //    }),
-        //);
+        const playerData = await this.fetchPlayerData(request);
+        const marketPrice = await this.silicon_service.fetchMarketPrice(playerData, request.body.tx.drug_id);
+        
+        const tx = {
+            cash: marketPrice.cash ,
+            quantity: marketPrice.quantity,
 
-        //if (signature === null || err) {
-        //    console.error("[ERROR] Failed to sign typed data:", err);
-        //}
-        //response.send({ commitment: swipeHash, signature });
-    };
+        }
+
+        const signature = await signTypedDataStarknet(this.walletClient,  tradeDAActionTypes, tradeDAActionTypeLabel, tradeDAActionDomain, tx)
+        const commitment = await getMessageHash(this.walletClient, tradeDAActionTypes, tradeDAActionTypeLabel, tradeDAActionDomain, tx)
+
+        response.send({commitment: commitment, signature:stringifyBigInts(signature)})
+        }
+
     private logRequestDetails = (req: Request, _: Response, next: NextFunction) => {
         const now = new Date();
         console.log(`Received request for ${req.path} at ${now.toISOString()}`);
         next();
     };
+
+    private async fetchPlayerData(request: StarknetRequestWithSignature): Promise<PlayerData> {
+        const address: string = request.body.tx.player_id as string;
+        const game_id: number = Number(request.body.tx.game_id) ;
+        return  await this.silicon_service.fetchPlayer(game_id, address); 
+    }
 }
 
 export async function getRyoController(): Promise<RyoController> {
     const ryo_controller = new RyoController();
     await ryo_controller.initializeStates();
+    await ryo_controller.initializeClient();
     return ryo_controller
 }
 
