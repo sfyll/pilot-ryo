@@ -26,10 +26,12 @@ class RyoController implements Controller {
     private blinded_silicon: BlindedSilicon;
     private silicon_service: SiliconService;
     private walletClient: Account
-    private seismicStarknetContractAddress: string = process.env.CONTRACT_ADDRESS as string; 
+    private seismicStarknetContractAddress: string; 
 
     constructor() {
         this.initializeRoutes();
+        this.seismicStarknetContractAddress = process.env.VERIFIER_CONTRACT_ADDRESS as string;
+        console.log("our ADDRESS: ", this.seismicStarknetContractAddress)
     }
 
     private initializeRoutes() {
@@ -46,7 +48,6 @@ class RyoController implements Controller {
         this.router.post(
                     `${this.path}/tradeDavail`,
                     validationMiddleware(TradeDADto),
-                    this.logRequestDetails,
                     starknetAuthhMiddleware(
                         tradeDAReqTyped.types,
                         tradeDAReqTyped.primaryType,
@@ -107,18 +108,13 @@ class RyoController implements Controller {
         response: Response,
         next: NextFunction,
     ) => {
-        const playerData = await this.fetchPlayerData(request);
-        const marketPrice = await this.silicon_service.fetchMarketPrice(playerData, request.body.tx.drug_id);
-        
-        const tx = {
-            cash: marketPrice.cash ,
-            quantity: marketPrice.quantity,
+        const playerData = await this.fetchPlayerData(request)
+        const tx = this.silicon_service.stageTrade(playerData.game_id, playerData.player_id, playerData.location_id, request.body.tx.drug_id,
+                                                   request.body.tx.new_cash, request.body.tx.new_quantity)
+        console.log("tx: ", tx)
 
-        }
-
-        const signature = await signTypedDataStarknet(this.walletClient,  tradeDAActionTypes, tradeDAActionTypeLabel, tradeDAActionDomain, tx)
+        const signature = await signTypedDataStarknet(this.walletClient, tradeDAActionTypes, tradeDAActionTypeLabel, tradeDAActionDomain, tx)
         const commitment = await getMessageHash(this.walletClient, tradeDAActionTypes, tradeDAActionTypeLabel, tradeDAActionDomain, tx)
-
         response.send({commitment: commitment, signature:stringifyBigInts(signature)})
         }
 
