@@ -2,11 +2,9 @@ import { ApolloQueryResult, DocumentNode } from '@apollo/client/core';
 import { getOperationName } from '@apollo/client/utilities';
 import { apolloClient } from '../utils/apollo_handler';
 import { MarketModelsResponse, BlindedMarketModelsResponse } from "../../graphql/graphql";
-import { BlindedMarketSilicon, MarketSilicon, TransparentMarketSilicon } from "./silicon.types";
-import { Trade } from '../ryo.types';
-import { poseidonHashMany } from "@scure/starknet";
+import { BlindedMarketSilicon, MarketSilicon, Trade, TransparentMarketSilicon } from "./silicon.types";
 
-export class Silicon<T extends MarketSilicon <bigint|number, bigint|number>> {
+class Silicon<T extends MarketSilicon <bigint|number, bigint|number>> {
     protected query: any;
     public markets: Map<string, T>;
 
@@ -20,7 +18,7 @@ export class Silicon<T extends MarketSilicon <bigint|number, bigint|number>> {
     }
 }
 
-class TransparentSilicon extends Silicon<TransparentMarketSilicon> {
+export class TransparentSilicon extends Silicon<TransparentMarketSilicon> {
     /*
     * fetch RYO marketModels using graphql.
     */
@@ -63,7 +61,7 @@ class TransparentSilicon extends Silicon<TransparentMarketSilicon> {
     }
 }
 
-class BlindedSilicon extends Silicon<BlindedMarketSilicon> {
+export class BlindedSilicon extends Silicon<BlindedMarketSilicon> {
     /*
     * fetch RYO BlindedMarketModels using graphql.
     */
