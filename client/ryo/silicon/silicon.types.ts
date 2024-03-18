@@ -42,6 +42,15 @@ export interface PlayerData {
   location_id: string;
 }
 
+export type Trade = {
+    nonce: string;
+    player_id: number;
+    game_id: number;
+    location_id:number; 
+    drug_id: number;
+    cash: number;
+    quantity: number;
+}
 
 export interface MarketPricesPerDrugId {
     [drug_id: string]: {
@@ -57,3 +66,19 @@ export interface MarketPrice {
   quantity: number;
   location_id: string;
 }
+
+export interface BlindedMarketPricesPerDrugId {
+    [drug_id: string]: {
+        cash: string,
+        quantity: string,
+        location_id: string
+    }
+}
+
+export interface BlindedMarketPrice {
+  drug_id: string;
+  cash: string;
+  quantity: string;
+  location_id: string;
+}
+
