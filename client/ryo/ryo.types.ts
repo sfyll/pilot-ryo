@@ -6,7 +6,6 @@ import {
     createEIP712TypesNoBodyStarknet,
 } from "../interfaces/eip712.interface";
 import { StarkNetDomain, TypedData } from "starknet";
-import { RequestWithBody } from "../interfaces/request.interface";
 
 /*
  * helper function to construct TypedData as specified in EIP712.
