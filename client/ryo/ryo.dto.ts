@@ -51,6 +51,12 @@ class TradeDaBodyDto {
 
     @IsString()
     public drug_id: string;
+    
+    @IsBigIntString()
+    public new_cash: string;
+
+    @IsBigIntString()
+    public new_quantity: string;
 }
 
 export class TradeDADto {
