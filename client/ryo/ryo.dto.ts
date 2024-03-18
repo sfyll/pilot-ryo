@@ -1,6 +1,7 @@
 import "reflect-metadata";
 import {
-    ValidateNested
+    ValidateNested,
+    IsString
 } from "class-validator";
 import { Type } from "class-transformer";
 
@@ -32,6 +33,30 @@ export class TradeParametersDADto {
     @ValidateNested()
     @Type(() => TradeParametersDABodyDto)
     public tx: TradeParametersDABodyDto;
+
+    @ValidateNested()
+    @Type(() => SignatureBodyDto)
+    public signature: SignatureBodyDto;
+}
+
+class TradeDaBodyDto {
+    @IsBigIntString()
+    public nonce: string;
+    
+    @IsBigIntString()
+    public player_id: string;
+
+    @IsBigIntString()
+    public game_id: string;
+
+    @IsString()
+    public drug_id: string;
+}
+
+export class TradeDADto {
+    @ValidateNested()
+    @Type(() => TradeDaBodyDto)
+    public tx: TradeDaBodyDto;
 
     @ValidateNested()
     @Type(() => SignatureBodyDto)
