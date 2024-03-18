@@ -1,6 +1,2 @@
-<<<<<<< HEAD
-mod signature_verifier;
-=======
 mod seismic;
->>>>>>> origin/smart_contract
-
+mod eip712_simple_struct;
