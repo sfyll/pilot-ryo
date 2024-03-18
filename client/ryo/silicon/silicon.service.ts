@@ -50,9 +50,28 @@ class SiliconService {
         'cost' in event;
     }
 
-    private  getUniqueTradeKey(game_id: number, drug_id: String, player_id: string): string {
+    private  getUniqueTradeKey(game_id: String, drug_id: String, player_id: String): string {
         return `${game_id}-${drug_id}-${player_id}`;
     }
+
+    public stageTrade(game_id: number, player_id: String, location_id: String, drug_id: String, cash: bigint, quantity: bigint) {
+        const key = this.getUniqueTradeKey(game_id, drug_id, player_id)
+        const hashCash = poseidonHashMany([BigInt(cash)]);
+        const hashQuantity = poseidonHashMany([BigInt(quantity)]);
+        const trade = {
+            player_id,
+            game_id,
+            location_id,
+            drug_id,
+            cash,
+            quantity} as Trade
+        this.stagedTrades.set(key, trade)
+
+        return  {
+                    cash: hashCash,
+                    quantity: hashQuantity,
+                }
+        }
   
   /*
   * Check that we have a bijection between both maps. 
