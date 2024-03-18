@@ -43,13 +43,12 @@ export interface PlayerData {
 }
 
 export type Trade = {
-    nonce: string;
     player_id: number;
-    game_id: number;
-    location_id:number; 
-    drug_id: number;
-    cash: number;
-    quantity: number;
+    game_id: string;
+    location_id: String; 
+    drug_id: String;
+    cash: bigint;
+    quantity: bigint;
 }
 
 export interface MarketPricesPerDrugId {
