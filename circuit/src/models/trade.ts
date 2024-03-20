@@ -10,16 +10,14 @@ export default class Trade {
     amountOut: bigint;
     reserve_in_image: string;
     reserve_out_image: string;
-    zkpParams: ZkpParams;
 
-    constructor(pool: Univ2, salt: bigint, amountIn: bigint, amountOut: bigint, reserve_in_image: string, reserve_out_image: string, zkpParams: ZkpParams) {
+    constructor(pool: Univ2, salt: bigint, amountIn: bigint, amountOut: bigint, reserve_in_image: string, reserve_out_image: string) {
         this.pool = pool;
         this.salt = salt;
         this.amountIn = amountIn;
         this.amountOut = amountOut;
         this.reserve_in_image = reserve_in_image;
         this.reserve_out_image = reserve_out_image;
-        this.zkpParams = zkpParams;
     }
 
     /*
@@ -30,8 +28,7 @@ export default class Trade {
         const salt = genRandomInt();
         const reserve_in_image = await Trade.get_reserve_image(pool.reserve_in, salt);
         const reserve_out_image = await Trade.get_reserve_image(pool.reserve_out, salt);
-        const zkpParams = Trade.getZkpParams(amountIn, pool.reserve_in, pool.reserve_out, amountOut, salt, reserve_in_image, reserve_out_image);
-        return new Trade(pool, salt, amountIn, amountOut, reserve_in_image, reserve_out_image, zkpParams);
+        return new Trade(pool, salt, amountIn, amountOut, reserve_in_image, reserve_out_image);
     }
 
     /*
@@ -55,15 +52,15 @@ export default class Trade {
     /*
      * Get zkpParams for either buy or sell 
     */
-    public static getZkpParams(amountIn: bigint, reserve_in: bigint, reserve_out: bigint, amountOut: bigint, salt: bigint, reserve_in_image: string, reserve_out_image: string): ZkpParams {
+    public getZkpParams(): ZkpParams {
         return {
-            amount_in: amountIn.toString(),
-            reserve_in: reserve_in.toString(),
-            reserve_out: reserve_out.toString(),
-            amount_out: amountOut.toString(),
-            salt: salt.toString(),
-            reserve_in_image: reserve_in_image,
-            reserve_out_image: reserve_out_image
+            amount_in: this.amountIn.toString(),
+            reserve_in: this.pool.reserve_in.toString(),
+            reserve_out: this.pool.reserve_out.toString(),
+            amount_out: this.amountOut.toString(),
+            salt: this.salt.toString(),
+            reserve_in_image: this.reserve_in_image,
+            reserve_out_image: this.reserve_out_image
         }
     }
 

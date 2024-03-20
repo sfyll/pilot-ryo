@@ -20,7 +20,7 @@ describe("Unit test for getAmountIn()", () => {
     it("succeed as the invariant holds", async () => {
         const amountOut = BigInt(50_000); 
         const trade: Trade = await Trade.getTrade(reserve_in, reserve_out, amountOut, TradeSide.BUY)
-        const w = await circuit.calculateWitness(trade.zkpParams);
+        const w = await circuit.calculateWitness(trade.getZkpParams());
         await circuit.checkConstraints(w);
     });
 
@@ -73,7 +73,7 @@ describe("Unit test for GetAmountOut()", () => {
     it("succeed as the invariant holds", async () => {
         const amountIn = BigInt(5_000); 
         const trade: Trade = await Trade.getTrade(reserve_in, reserve_out, amountIn, TradeSide.SELL)
-        const w = await circuit.calculateWitness(trade.zkpParams);
+        const w = await circuit.calculateWitness(trade.getZkpParams());
         await circuit.checkConstraints(w);
     });
 
