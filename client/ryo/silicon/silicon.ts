@@ -48,16 +48,19 @@ export class TransparentSilicon extends Silicon<TransparentMarketSilicon> {
 
     public updateMarket(trade: Trade) {
         const key = `${trade.game_id}-${trade.location_id}-${trade.drug_id}`
-        
+        console.log("Update Market with Trade: ", trade)
+         
+        console.log("Update Market using key: ", key)
         const market = new TransparentMarketSilicon(
             trade.game_id,
             trade.location_id,
             trade.game_id,
-            trade.cash,
-            trade.quantity
+            '0x' + parseInt(trade.cash, 10).toString(16),
+            BigInt(parseInt(trade.quantity, 10))
         )
-
+        console.log("Pre Updade: ", this.markets.get(key))
         this.markets.set(key, market)  
+        console.log("Post Updade: ", this.markets.get(key))
     }
 }
 
