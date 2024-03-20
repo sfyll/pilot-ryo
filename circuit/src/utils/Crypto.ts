@@ -1,7 +1,6 @@
  // @ts-ignore
 import {buildPoseidon} from "circomlibjs";
 // @ts-ignore
-import { bigint } from "snarkjs";
 import { genRandomSalt } from "maci-crypto";
 
 
