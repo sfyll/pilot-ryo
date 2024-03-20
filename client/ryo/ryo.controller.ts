@@ -10,6 +10,7 @@ import { starknetAuthhMiddleware } from "../middleware/auth.middleware";
 import validationMiddleware from "../middleware/validation.middleware";
 import { TradeParametersDADto} from "./ryo.dto";
 import { tradeParametersDAReqTyped } from "./ryo.types";
+import PlayerAtHomeException from "../exceptions/PlayerAHomeException";
 
 class RyoController implements Controller {
     public path = "/trade";
@@ -58,9 +59,8 @@ class RyoController implements Controller {
         const game_id: number = Number(request.body.tx.game_id) ;
         let playerData: PlayerData = await this.silicon_service.fetchPlayer(game_id, address);
         if (playerData.location_id == "Home") {
-            return response.status(404).send({
-                message: "No market at home location"
-            })
+            next(new PlayerAtHomeException());
+            return;        
         }
         else {
             const pricePerDrugId = await this.silicon_service.fetchMarketPrices(playerData.game_id, playerData.location_id);
