@@ -1,4 +1,4 @@
-import { Account, Signature, StarkNetDomain, typedData  } from "starknet";
+import { Account, Signature, StarkNetDomain, WeierstrassSignatureType, typedData  } from "starknet";
 import { getStarknetTypedDataWithMessage } from "../ryo/ryo.types";
 import { EIP712DomainType, EIP712Types } from "../interfaces/eip712.interface";
 
@@ -14,12 +14,14 @@ export async function signTypedDataStarknet(
     primaryType: string,
     domain: StarkNetDomain,
     message: any,
-): Promise<Signature> {
-    let typedDataToValidate = getStarknetTypedDataWithMessage(types, primaryType, domain, message);
-    return walletClient.signMessage(
+): Promise<Signature>   {
+    const typedDataToValidate = getStarknetTypedDataWithMessage(types, primaryType, domain, message);
+    return  await walletClient.signMessage(
         typedDataToValidate
-    );
+        ) as WeierstrassSignatureType;
 }
+
+
 /*
  * get messageHash to verify on-chain
  */
@@ -29,7 +31,7 @@ export async function getMessageHash(
     primaryType: string,
     domain: StarkNetDomain,
     message: any,
-): Promise<String> {
+): Promise<string> {
     let typedDataToValidate = getStarknetTypedDataWithMessage(types, primaryType, domain, message);
     return walletClient.hashMessage(typedDataToValidate);
 }
