@@ -42,14 +42,14 @@ export interface BoughtEventData extends BaseEventData {
   playerId: string;
   drugId: string;
   quantity: number;
-  cost: number;
+  cash: number;
 }
 
 export interface SoldEventData extends BaseEventData {
   playerId: string;
   drugId: string;
   quantity: number;
-  payout: number;
+  cash: number;
 }
 
 export interface DecisionEventData extends BaseEventData {
@@ -213,7 +213,7 @@ export const parseEvent = (raw: any) => {
         playerId: num.toHexString(raw.keys[2]),
         drugId: num.toHexString(raw.data[0]),
         quantity: Number(raw.data[1]),
-        cost: Number(raw.data[2]),
+        cash: Number(raw.data[2]),
       } as BoughtEventData;
 
     case WorldEvents.Sold:
@@ -224,7 +224,7 @@ export const parseEvent = (raw: any) => {
         playerId: num.toHexString(raw.keys[2]),
         drugId: num.toHexString(raw.data[0]),
         quantity: Number(raw.data[1]),
-        payout: Number(raw.data[2]),
+        cash: Number(raw.data[2]),
       } as SoldEventData;
 
     case WorldEvents.BoughtItem:
