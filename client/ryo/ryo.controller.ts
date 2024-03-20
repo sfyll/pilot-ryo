@@ -71,7 +71,7 @@ class RyoController implements Controller {
     public async initializeStates() {
         this.transparent_silicon = await instantiate_silicon(GET_ALL_MARKETS_QUERY) as TransparentSilicon;
         this.blinded_silicon = await instantiate_silicon(GET_ALL_BLINDED_MARKETS_QUERY) as BlindedSilicon;
-        this.silicon_service = new SiliconService(this.transparent_silicon.updateMarket)
+        this.silicon_service = new SiliconService(this.transparent_silicon.updateMarket.bind(this.transparent_silicon))
         this.silicon_service.verifySiliconMapping(this.blinded_silicon, this.transparent_silicon);
     }
 
@@ -79,10 +79,9 @@ class RyoController implements Controller {
         this.walletClient = await setupDojoProviderSeismic();
     }
 
-    private ping = (req: Request, res: Response) => {
-        res.status(200).send({ message: 'Pong!' });
-    };
-
+    /*
+    * Return pool cash and quantity parameters if the user meets the predicates
+    */
     private tradeParameters = async (
         request: StarknetRequestWithSignature,
         response: Response,
@@ -111,7 +110,6 @@ class RyoController implements Controller {
         const playerData = await this.fetchPlayerData(request)
         const tx = this.silicon_service.stageTrade(playerData.game_id, playerData.player_id, playerData.location_id, request.body.tx.drug_id,
                                                    request.body.tx.new_cash, request.body.tx.new_quantity)
-        console.log("tx: ", tx)
 
         const signature = await signTypedDataStarknet(this.walletClient, tradeDAActionTypes, tradeDAActionTypeLabel, tradeDAActionDomain, tx)
         const commitment = await getMessageHash(this.walletClient, tradeDAActionTypes, tradeDAActionTypeLabel, tradeDAActionDomain, tx)
