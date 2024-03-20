@@ -27,38 +27,29 @@ template Trade(n) {
     // =========================================
     // Verify preimage knowledge
     // =========================================
-    component hasher_reserve_in = Poseidon(2);
-    component hasher_reserve_out = Poseidon(2);
-
-    hasher_reserve_in.inputs[0] <== reserve_in;
-    hasher_reserve_in.inputs[1] <== salt;
-    hasher_reserve_out.inputs[0] <== reserve_out;
-    hasher_reserve_out.inputs[1] <== salt;
-
-    hasher_reserve_in.out === reserve_in_image;
-    hasher_reserve_out.out === reserve_out_image;
+    signal circuit_image_reserve_in;
+    signal circuit_image_reserve_out;
+    circuit_image_reserve_in <== Poseidon(2)([reserve_in, salt]);
+    circuit_image_reserve_in === reserve_in_image;
+    circuit_image_reserve_out <== Poseidon(2)([reserve_out, salt]);
+    circuit_image_reserve_out === reserve_out_image;
 
     // =========================================
     // Verify inputs value
     // ========================================= 
-    component isLessThan_reserve_in = LessThan(n);
-    component isLessThan_reserve_out = LessThan(n);
     var u128_ceiling = u128_ceiling();
+    signal reserve_in_less_than_ceiling;
+    signal reserve_out_less_than_ceiling;
+    signal amount_out_less_than_reserve_out;
 
-    isLessThan_reserve_in.in[0] <== reserve_in;
-    isLessThan_reserve_in.in[1] <== u128_ceiling;
+    reserve_in_less_than_ceiling <== LessThan(n)([reserve_in, u128_ceiling]); 
+    reserve_out_less_than_ceiling <== LessThan(n)([reserve_out, u128_ceiling]); 
+    
+    reserve_in_less_than_ceiling === 1;
+    reserve_out_less_than_ceiling === 1;
 
-    isLessThan_reserve_out.in[0] <== reserve_out;
-    isLessThan_reserve_out.in[1] <== u128_ceiling;
-
-    isLessThan_reserve_in.out === 1; 
-    isLessThan_reserve_out.out === 1;
-
-    component amount_out_less_than_reserve_out = LessThan(n);
-    amount_out_less_than_reserve_out.in[0] <== amount_out;
-    amount_out_less_than_reserve_out.in[1] <== reserve_out;
-
-    amount_out_less_than_reserve_out.out === 1;
+    amount_out_less_than_reserve_out <== LessThan(n)([amount_out, reserve_out]);
+    amount_out_less_than_reserve_out === 1;
 
     // =========================================
     // Verify invariance property
@@ -79,4 +70,3 @@ template Trade(n) {
 
     invariant_post_trade === invariant_pre_trade;
 }
-
