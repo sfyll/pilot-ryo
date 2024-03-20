@@ -23,16 +23,24 @@ export default class Trade {
     }
 
     /*
+     * Generalized function to create a Trade instance
+     */
+    private static async createTrade(reserve_in: bigint, reserve_out: bigint, amountIn: bigint, amountOut: bigint) {
+        const pool = new Univ2(reserve_in, reserve_out);
+        const salt = genRandomInt();
+        const reserve_in_image = await Trade.get_reserve_image(pool.reserve_in, salt);
+        const reserve_out_image = await Trade.get_reserve_image(pool.reserve_out, salt);
+        const zkpParams = Trade.getZkpParams(amountIn, pool.reserve_in, pool.reserve_out, amountOut, salt, reserve_in_image, reserve_out_image);
+        return new Trade(pool, salt, amountIn, amountOut, reserve_in_image, reserve_out_image, zkpParams);
+    }
+
+    /*
      * Get circuit parameters for buys
     */
     private static async getParametersBuy(reserve_in: bigint, reserve_out: bigint, amountOut: bigint) {
         const pool = new Univ2(reserve_in, reserve_out);
         const amountIn = pool.getAmountIn(amountOut);
-        const salt = genRandomInt();
-        const reserve_in_image = await Trade.get_reserve_image(pool.reserve_in, salt) 
-        const reserve_out_image = await Trade.get_reserve_image(pool.reserve_out, salt) 
-        const zkpParams = Trade.getZkpParams(amountIn, pool.reserve_in, pool.reserve_out, amountOut, salt, reserve_in_image, reserve_out_image);
-        return new Trade(pool, salt, amountIn, amountOut, reserve_in_image, reserve_out_image, zkpParams)
+        return Trade.createTrade(reserve_in, reserve_out, amountIn, amountOut);   
     }
 
     /*
@@ -41,12 +49,7 @@ export default class Trade {
     private static async getParametersSell(reserve_in: bigint, reserve_out: bigint, amountIn: bigint) {
         const pool = new Univ2(reserve_in, reserve_out);
         const amountOut = pool.getAmountOut(amountIn);
-        const salt = genRandomInt();
-        const reserve_in_image = await Trade.get_reserve_image(pool.reserve_in, salt) 
-        const reserve_out_image = await Trade.get_reserve_image(pool.reserve_out, salt) 
-        const zkpParams = Trade.getZkpParams(amountIn, pool.reserve_in, pool.reserve_out, amountOut, salt, reserve_in_image, reserve_out_image);
-        console.log(zkpParams)
-        return new Trade(pool, salt, amountIn, amountOut, reserve_in_image, reserve_out_image, zkpParams)
+        return Trade.createTrade(reserve_in, reserve_out, amountIn, amountOut);
     }
      
     /*
