@@ -1,6 +1,6 @@
 import { TradeSide } from "../types/TradeSide";
 import { ZkpParams } from "../types/ZkpParams";
-import { genRandomInt, getPoseidonHash } from "../utils/Crypto";
+import { genRandomInt, getPoseidonHash } from "../utils/crypto";
 import Univ2 from "./Univ2";
 
 export default class Trade {

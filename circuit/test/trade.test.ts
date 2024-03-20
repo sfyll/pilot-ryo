@@ -3,7 +3,7 @@ const chai = require('chai')
 import Trade from "../src/models/Trade";
 import Univ2 from "../src/models/Univ2";
 import { TradeSide } from "../src/types/TradeSide";
-import { genRandomInt } from "../src/utils/Crypto";
+import { genRandomInt } from "../src/utils/crypto";
 const chaiAsPromised = require('chai-as-promised');
 const expect = chai.expect;
 chai.use(chaiAsPromised)

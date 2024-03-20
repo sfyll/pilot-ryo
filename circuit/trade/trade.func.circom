@@ -8,6 +8,27 @@ function u128_ceiling() {
     return 340282366920938463463374607431768211455;
 }
 
+template InvariantVerification() {
+    signal input reserve_in;
+    signal input reserve_out;
+    signal input amount_in;
+    signal input amount_out;
+
+    signal reserve_in_post_trade;
+    signal reserve_out_post_trade;
+    signal invariant_pre_trade;
+    signal invariant_post_trade;
+
+    invariant_pre_trade <== reserve_in * reserve_out;
+
+    reserve_in_post_trade <== reserve_in + amount_in;
+    reserve_out_post_trade <== reserve_out - amount_out;
+    invariant_post_trade <== reserve_in_post_trade * reserve_out_post_trade;
+
+    invariant_post_trade === invariant_pre_trade;
+}
+
+
 template Trade(n) {
     // =========================================
     // Private Inputs
@@ -54,19 +75,6 @@ template Trade(n) {
     // =========================================
     // Verify invariance property
     // ========================================= 
-    signal numerator;
-    signal denumerator;
-    signal invariant_pre_trade;
-
-    invariant_pre_trade <== reserve_in * reserve_out;
-    
-    signal reserve_in_post_trade;
-    signal reserve_out_post_trade;
-    signal invariant_post_trade;
-
-    reserve_in_post_trade <== reserve_in + amount_in;
-    reserve_out_post_trade <== reserve_out - amount_out;
-    invariant_post_trade <== reserve_in_post_trade * reserve_out_post_trade;
-
-    invariant_post_trade === invariant_pre_trade;
+    InvariantVerification()(reserve_in, reserve_out, amount_in, amount_out);
 }
+
