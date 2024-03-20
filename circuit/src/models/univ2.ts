@@ -19,11 +19,7 @@ export default class Univ2 {
     return numerator / denominator;
   }
 
-//  public getAmountOut(amountIn: bigint): bigint {
-//
-//    const k = this.reserve_in * this.reserve_in;
-//    return this.reserve_out - (k / (this.reserve_in + amountIn));
-//  }
+
 /*
  * GetAmountIn following Univ2 specs.
  */
