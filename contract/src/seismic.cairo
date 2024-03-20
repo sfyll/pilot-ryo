@@ -2,7 +2,7 @@ use starknet::secp256_trait::Signature;
 
 #[starknet::interface]
 trait ISeismic<TContractState> {
-    fn verify_signature(self: @TContractState, commitment: u256, cash: felt252, quantity: felt252, signature: Signature);
+    fn verify_signature(self: @TContractState, commitment: felt252, cash: felt252, quantity: felt252, signature: Signature);
 }
 
 #[starknet::contract]
@@ -20,11 +20,14 @@ mod Seismic {
         seismic_public_key: felt252,
         seismic_contract_address: ContractAddress,
     }
-
+    
+    //
+    // commenting the body until we can deploy the contract
+    //
     #[constructor]
-    fn constructor(ref self: ContractState, public_key: felt252, contract_address: felt252) {
-         self.seismic_public_key.write(public_key);
-         self.seismic_contract_address.write(contract_address.try_into().unwrap());
+    fn constructor(ref self: ContractState) {
+        // self.seismic_public_key.write(public_key);
+        // self.seismic_contract_address.write(address_seismic_starknet.try_into().unwrap());
     }
 
     //
@@ -32,9 +35,11 @@ mod Seismic {
     //
     #[abi(embed_v0)]
     impl Seismic of super::ISeismic<ContractState> {        
-        fn verify_signature(self: @ContractState, commitment: u256, cash: felt252, quantity: felt252, signature: Signature) {
-            assert(get_pool_params_commitment(cash, quantity, self.seismic_contract_address.read()) == commitment.try_into().unwrap(), 200);
-            assert(check_ecdsa_signature(commitment.try_into().unwrap(), self.seismic_public_key.read(), signature.r.try_into().unwrap(), signature.s.try_into().unwrap()) == true, 201);
+        fn verify_signature(self: @ContractState, commitment: felt252, cash: felt252, quantity: felt252, signature: Signature) {
+            let public_key : felt252 =  0x788d5c7eacd34e7778fec1eaadb30c285107d104dabcc63b8ed7d80bbdfa1b1;
+            let address_seismic_starknet: felt252 = 0x6fb6f2999636e8adbc0f70692dbb6d60175a9ca0ad57ba2204daa1aaec6840c;     s   
+            assert(get_pool_params_commitment(cash, quantity, self.seismic_contract_address.read()) == commitment, 200);
+            assert(check_ecdsa_signature(commitment, self.seismic_public_key.read(), signature.r.try_into().unwrap(), signature.s.try_into().unwrap()) == true, 201);
         }
         }
     }
@@ -57,14 +62,14 @@ mod tests {
 
         let mut calldata = array![];
 
-        calldata.append(public_key);
-        calldata.append(address_seismic_starknet);
+        // calldata.append(public_key);
+        // calldata.append(address_seismic_starknet);
 
         let contract_address = contract.deploy(@calldata).unwrap();
 
         let dispatcher = ISeismicDispatcher { contract_address };
 
-        let commitment: u256 = 0x506fb191723528414503395615b1bf141258558c8b1f6f67443255ddf330714;
+        let commitment: felt252 = 0x506fb191723528414503395615b1bf141258558c8b1f6f67443255ddf330714;
         let signature = Signature {
             r: 300136576235067440134385895102963648255578671661113346025998212864770581420,
             s: 2307398616513861481499065117492895322340166067393557713734117244912719712318, 
@@ -85,16 +90,16 @@ mod tests {
 
         let mut calldata = array![];
 
-        calldata.append(public_key);
-        calldata.append(address_seismic_starknet);
+        // calldata.append(public_key);
+        // calldata.append(address_seismic_starknet);
 
         let contract_address = contract.deploy(@calldata).unwrap();
 
         let dispatcher = ISeismicDispatcher { contract_address };
 
-        let commitment: u256 = 0x506fb191723528414503395615b1bf141258558c8b1f6f67443255ddf330714;
+        let commitment: felt252 = 0x506fb191723528414503395615b1bf141258558c8b1f6f67443255ddf330714;
         let signature = Signature {
-            r: 300136576235067440134385895102963648255578671661113346025998212864770581420,
+            r: 300136576235067440134385895102963648255578671661113346025998212864770581422,
             s: 2307398616513861481499065117492895322340166067393557713734117244912719712318, 
             y_parity: false
         };
