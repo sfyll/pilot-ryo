@@ -30,7 +30,7 @@ export const EIP712DomainSpec = [
 ];
 
 export const EIP712DomainSpecStarknet = [
-    { name: "name", type: "string" },
+    { name: "name", type: "felt" },
     { name: "version", type: "felt" },
     { name: "chainId", type: "felt" },
 ];

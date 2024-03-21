@@ -4,12 +4,12 @@
  */
 export class MarketSilicon<TCashType, TQuantityType> {
     game_id: number;
-    location_id: number;
+    location_id: string;
     drug_id: number;
     cash: TCashType;
     quantity: TQuantityType;
 
-    constructor(game_id: number, location_id: number, drug_id: number, cash: TCashType, quantity: TQuantityType) {
+    constructor(game_id: number, location_id: string, drug_id: number, cash: TCashType, quantity: TQuantityType) {
         this.game_id = game_id;
         this.location_id = location_id;
         this.drug_id = drug_id;
@@ -33,7 +33,7 @@ export class BlindedMarketSilicon extends MarketSilicon<bigint, bigint> {}
 /*
  * Extend the base Market for TransparentMarket with specific types for cash and quantity.
  */
-export class TransparentMarketSilicon extends MarketSilicon<number, number> {}
+export class TransparentMarketSilicon extends MarketSilicon<string, bigint> {}
 
 
 export interface PlayerData {
@@ -42,6 +42,14 @@ export interface PlayerData {
   location_id: string;
 }
 
+export type Trade = {
+    player_id: string;
+    game_id: number;
+    location_id: string; 
+    drug_id: string;
+    cash: string;
+    quantity: string;
+}
 
 export interface MarketPricesPerDrugId {
     [drug_id: string]: {
@@ -57,3 +65,19 @@ export interface MarketPrice {
   quantity: number;
   location_id: string;
 }
+
+export interface BlindedMarketPricesPerDrugId {
+    [drug_id: string]: {
+        cash: string,
+        quantity: string,
+        location_id: string
+    }
+}
+
+export interface BlindedMarketPrice {
+  drug_id: string;
+  cash: string;
+  quantity: string;
+  location_id: string;
+}
+

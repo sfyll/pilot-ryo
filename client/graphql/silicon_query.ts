@@ -71,4 +71,28 @@ export const get_markets_per_game_id = gql`
                 }
             `
 
+export const get_blinded_markets_per_game_id = gql`
+                query MarketPrices($gameId: Int!) {
+                    blindedMarketModels(first: 36, where: {game_id: $gameId}) {
+                        edges {
+                            node {
+                                drug_id
+                                location_id
+                                quantity
+                                cash
+                            }
+                        }
+                    }
+                }
+            `
 
+export const subscribe_to_all_world_events = gql`
+    subscription {
+      eventEmitted {
+        id
+        keys
+        data
+        transactionHash
+      }
+    }
+`

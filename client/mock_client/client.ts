@@ -11,7 +11,7 @@ import { stringifyBigInts } from "../utils/bigint";
 /*
  * Instantiate Wallet Provider pointing to katana client. 
  */
-export async function setupDojoProvider():  Promise<Account | null>  { 
+export async function setupDojoProvider():  Promise<Account> { 
 
     const rpcProvider = new RpcProvider({
         nodeUrl: process.env.RPC_URL,
@@ -69,7 +69,6 @@ async function runDemo() {
     if (response.status !== 200) {
         throw new Error("Could not acquire data availability signature");
     }
-    console.log("response: ", response.data);
 }
 
 
