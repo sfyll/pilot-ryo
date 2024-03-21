@@ -75,14 +75,3 @@ pub fn get_pool_params_commitment(cash: felt252, quantity: felt252, seismic_addr
     return pool_params.get_message_hash(seismic_address);
 }
 
-// Below is commented because it can be tested with scarb test but will break snforge tests
-// use starknet::ContractAddress;
-// #[test]
-// fn test_valid_hash() {
-//    let message_hash = 0x506fb191723528414503395615b1bf141258558c8b1f6f67443255ddf330714;
-//    let simple_struct = PoolParams { cash: 0x32bc7b08be58b5b122343f69006cf51d04d735331d97c63f43fb696ea7baec9, quantity: 0x6e65f09527633e587f0f1ffb8c6d288e10ea5a70032b05748fd9d69fa483b93 };
-//    let address_felt: felt252 = 0x6fb6f2999636e8adbc0f70692dbb6d60175a9ca0ad57ba2204daa1aaec6840c;
-//    let callerAddress: ContractAddress = address_felt.try_into().unwrap();
-//    set_caller_address(callerAddress);
-//    assert(simple_struct.get_message_hash(callerAddress) == message_hash, 'Hash should be valid');
-// }
