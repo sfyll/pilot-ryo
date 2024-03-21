@@ -37,7 +37,7 @@ mod Seismic {
     impl Seismic of super::ISeismic<ContractState> {        
         fn verify_signature(self: @ContractState, commitment: felt252, cash: felt252, quantity: felt252, signature: Signature) {
             let public_key : felt252 =  0x788d5c7eacd34e7778fec1eaadb30c285107d104dabcc63b8ed7d80bbdfa1b1;
-            let address_seismic_starknet: felt252 = 0x6fb6f2999636e8adbc0f70692dbb6d60175a9ca0ad57ba2204daa1aaec6840c;     s   
+            let address_seismic_starknet: felt252 = 0x6fb6f2999636e8adbc0f70692dbb6d60175a9ca0ad57ba2204daa1aaec6840c;
             assert(get_pool_params_commitment(cash, quantity, self.seismic_contract_address.read()) == commitment, 200);
             assert(check_ecdsa_signature(commitment, self.seismic_public_key.read(), signature.r.try_into().unwrap(), signature.s.try_into().unwrap()) == true, 201);
         }
