@@ -50,6 +50,9 @@ export class TransparentSilicon extends Silicon<TransparentMarketSilicon> {
     * Update market with new pool values on emitted bought or sold event.
     */
     public updateMarket(trade: Trade) {
+        console.log(
+            `  == Updating Market to this cash value: ${trade.cash}, and this quantity value: ${trade.quantity} ` 
+        ); 
         const key = `${trade.game_id}-${trade.location_id}-${trade.drug_id}`
         const market = new TransparentMarketSilicon(
             trade.game_id,
