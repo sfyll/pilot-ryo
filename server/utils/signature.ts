@@ -1,39 +1,9 @@
-import { PrivateKeyAccount, recoverMessageAddress, Hex, toHex } from "viem";
-import { getMessage } from "eip-712";
-import { EIP712DomainType, EIP712Types } from "../interfaces/eip712.interface";
-import { keccak256 } from "viem";
-import { MessagePrefix } from "ethers";
-import { kcc } from "viem/chains";
-import { Account, Signature, SignerInterface, StarkNetDomain, TypedData, WeierstrassSignatureType, typedData } from "starknet";
+import { Account, Signature, StarkNetDomain, WeierstrassSignatureType, typedData  } from "starknet";
 import { getStarknetTypedDataWithMessage } from "../ryo/ryo.types";
+import { EIP712DomainType, EIP712Types } from "../interfaces/eip712.interface";
 
-/*
- * Converts a uint8 array to a hexstring w/o the leading '0x'.
- */
-function uint8ArrayToHexString(byteArray: Uint8Array): string {
-    return Array.from(byteArray, function (byte) {
-        return ("0" + (byte & 0xff).toString(16)).slice(-2);
-    }).join("");
-}
-
-/*
- * Sign typed data according to EIP712.
- */
-export async function signTypedData(
-    walletClient: any,
-    account: PrivateKeyAccount,
-    types: any,
-    primaryType: string,
-    domain: EIP712DomainType,
-    message: any,
-): Promise<string> {
-    const messageHash = hashTypedData(types, primaryType, domain, message);
-    const messageHex: Hex = `0x${messageHash}`;
-    return walletClient.signMessage({
-        account,
-        message: { raw: messageHex as `0x${string}` },
-    });
-}
+import { keccak256 } from "viem";
+import { recoverMessageAddress, Hex, toHex } from "viem";
 
 /*
  * Sign typed data according to EIP712. For use on Starknet.
@@ -44,11 +14,26 @@ export async function signTypedDataStarknet(
     primaryType: string,
     domain: StarkNetDomain,
     message: any,
-): Promise<Signature> {
-    let typedDataToValidate = getStarknetTypedDataWithMessage(types, primaryType, domain, message);
-    return walletClient.signMessage(
+): Promise<Signature>   {
+    const typedDataToValidate = getStarknetTypedDataWithMessage(types, primaryType, domain, message);
+    return  await walletClient.signMessage(
         typedDataToValidate
-    );
+        ) as WeierstrassSignatureType;
+}
+
+
+/*
+ * get messageHash to verify on-chain
+ */
+export async function getMessageHash(
+    walletClient: Account,
+    types: any,
+    primaryType: string,
+    domain: StarkNetDomain,
+    message: any,
+): Promise<string> {
+    let typedDataToValidate = getStarknetTypedDataWithMessage(types, primaryType, domain, message);
+    return walletClient.hashMessage(typedDataToValidate);
 }
 
 /*

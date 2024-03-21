@@ -2,9 +2,9 @@ import { ApolloQueryResult, DocumentNode } from '@apollo/client/core';
 import { getOperationName } from '@apollo/client/utilities';
 import { apolloClient } from '../utils/apollo_handler';
 import { MarketModelsResponse, BlindedMarketModelsResponse } from "../../graphql/graphql";
-import { BlindedMarketSilicon, MarketSilicon, TransparentMarketSilicon } from "./silicon.types";
+import { BlindedMarketSilicon, MarketSilicon, Trade, TransparentMarketSilicon } from "./silicon.types";
 
-export class Silicon<T extends MarketSilicon <bigint|number, bigint|number>> {
+class Silicon<T extends MarketSilicon <bigint|number, bigint|number>> {
     protected query: any;
     public markets: Map<string, T>;
 
@@ -18,7 +18,7 @@ export class Silicon<T extends MarketSilicon <bigint|number, bigint|number>> {
     }
 }
 
-class TransparentSilicon extends Silicon<TransparentMarketSilicon> {
+export class TransparentSilicon extends Silicon<TransparentMarketSilicon> {
     /*
     * fetch RYO marketModels using graphql.
     */
@@ -45,9 +45,24 @@ class TransparentSilicon extends Silicon<TransparentMarketSilicon> {
             console.error('Error fetching transparent markets:', error);
         }
     }
+    
+    /*
+    * Update market with new pool values on emitted bought or sold event.
+    */
+    public updateMarket(trade: Trade) {
+        const key = `${trade.game_id}-${trade.location_id}-${trade.drug_id}`
+        const market = new TransparentMarketSilicon(
+            trade.game_id,
+            trade.location_id,
+            trade.game_id,
+            '0x' + parseInt(trade.cash, 10).toString(16),
+            BigInt(parseInt(trade.quantity, 10))
+        )
+        this.markets.set(key, market)  
+    }
 }
 
-class BlindedSilicon extends Silicon<BlindedMarketSilicon> {
+export class BlindedSilicon extends Silicon<BlindedMarketSilicon> {
     /*
     * fetch RYO BlindedMarketModels using graphql.
     */
