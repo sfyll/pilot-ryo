@@ -1,25 +1,38 @@
 import { TradeSide } from "../types/TradeSide";
 import { ZkpParams } from "../types/ZkpParams";
-import { genRandomInt, getPoseidonHash } from "../utils/Crypto";
+import { genRandomInt, getPoseidonHash } from "../utils/crypto";
 import Univ2 from "./Univ2";
 
 export default class Trade {
     pool: Univ2;
     salt: bigint;
     amountIn: bigint;
+    amountInRoundedDown: bigint;
     amountOut: bigint;
+    amountOutRoundedDown: bigint;
     reserve_in_image: string;
     reserve_out_image: string;
-    zkpParams: ZkpParams;
 
-    constructor(pool: Univ2, salt: bigint, amountIn: bigint, amountOut: bigint, reserve_in_image: string, reserve_out_image: string, zkpParams: ZkpParams) {
+    constructor(pool: Univ2, salt: bigint, amountIn: bigint, amountInRoundedDown: bigint, amountOut: bigint, amountOutRoundedDown: bigint, reserve_in_image: string, reserve_out_image: string) {
         this.pool = pool;
         this.salt = salt;
         this.amountIn = amountIn;
+        this.amountInRoundedDown = amountInRoundedDown;
         this.amountOut = amountOut;
+        this.amountOutRoundedDown = amountOutRoundedDown;
         this.reserve_in_image = reserve_in_image;
         this.reserve_out_image = reserve_out_image;
-        this.zkpParams = zkpParams;
+    }
+
+    /*
+     * Generalized function to create a Trade instance
+     */
+    private static async createTrade(reserve_in: bigint, reserve_out: bigint, amountIn: bigint, amountInRoundedDown: bigint, amountOut: bigint, amountOutRoundedDown: bigint) {
+        const pool = new Univ2(reserve_in, reserve_out);
+        const salt = genRandomInt();
+        const reserve_in_image = await Trade.get_reserve_image(pool.reserve_in, salt);
+        const reserve_out_image = await Trade.get_reserve_image(pool.reserve_out, salt);
+        return new Trade(pool, salt, amountIn, amountInRoundedDown, amountOut, amountOutRoundedDown, reserve_in_image, reserve_out_image);
     }
 
     /*
@@ -28,11 +41,8 @@ export default class Trade {
     private static async getParametersBuy(reserve_in: bigint, reserve_out: bigint, amountOut: bigint) {
         const pool = new Univ2(reserve_in, reserve_out);
         const amountIn = pool.getAmountIn(amountOut);
-        const salt = genRandomInt();
-        const reserve_in_image = await Trade.get_reserve_image(pool.reserve_in, salt) 
-        const reserve_out_image = await Trade.get_reserve_image(pool.reserve_out, salt) 
-        const zkpParams = Trade.getZkpParams(amountIn, pool.reserve_in, pool.reserve_out, amountOut, salt, reserve_in_image, reserve_out_image);
-        return new Trade(pool, salt, amountIn, amountOut, reserve_in_image, reserve_out_image, zkpParams)
+        const amountInRoundedDown = amountIn - BigInt(1);
+        return Trade.createTrade(reserve_in, reserve_out, amountIn,  amountInRoundedDown, amountOut, amountOut);   
     }
 
     /*
@@ -41,26 +51,24 @@ export default class Trade {
     private static async getParametersSell(reserve_in: bigint, reserve_out: bigint, amountIn: bigint) {
         const pool = new Univ2(reserve_in, reserve_out);
         const amountOut = pool.getAmountOut(amountIn);
-        const salt = genRandomInt();
-        const reserve_in_image = await Trade.get_reserve_image(pool.reserve_in, salt) 
-        const reserve_out_image = await Trade.get_reserve_image(pool.reserve_out, salt) 
-        const zkpParams = Trade.getZkpParams(amountIn, pool.reserve_in, pool.reserve_out, amountOut, salt, reserve_in_image, reserve_out_image);
-        console.log(zkpParams)
-        return new Trade(pool, salt, amountIn, amountOut, reserve_in_image, reserve_out_image, zkpParams)
+        const amountOutRoundedDown = amountOut - BigInt(1)
+        return Trade.createTrade(reserve_in, reserve_out, amountIn, amountIn, amountOut, amountOutRoundedDown);
     }
      
     /*
      * Get zkpParams for either buy or sell 
     */
-    public static getZkpParams(amountIn: bigint, reserve_in: bigint, reserve_out: bigint, amountOut: bigint, salt: bigint, reserve_in_image: string, reserve_out_image: string): ZkpParams {
+    public getZkpParams(): ZkpParams {
         return {
-            amount_in: amountIn.toString(),
-            reserve_in: reserve_in.toString(),
-            reserve_out: reserve_out.toString(),
-            amount_out: amountOut.toString(),
-            salt: salt.toString(),
-            reserve_in_image: reserve_in_image,
-            reserve_out_image: reserve_out_image
+            amount_in: this.amountIn.toString(),
+            amount_in_rounded_down: this.amountInRoundedDown.toString(),
+            reserve_in: this.pool.reserve_in.toString(),
+            reserve_out: this.pool.reserve_out.toString(),
+            amount_out: this.amountOut.toString(),
+            amount_out_rounded_down: this.amountOutRoundedDown.toString(),
+            salt: this.salt.toString(),
+            reserve_in_image: this.reserve_in_image,
+            reserve_out_image: this.reserve_out_image
         }
     }
 
