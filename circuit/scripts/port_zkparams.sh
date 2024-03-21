@@ -7,20 +7,20 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 SOURCE_DIR="$(dirname "$SOURCE_DIR")"
 
 # Define the target directory's relative path
-RELATIVE_TARGET_DIR="../../rollyourown/web/src/zkp"
+RELATIVE_TARGET_DIR="../../rollyourown/web/src/seismic/zkp/parameters/"
 
 # Ensure the target directory exists before normalizing the path
 mkdir -p "${SOURCE_DIR}/${RELATIVE_TARGET_DIR}"
 # Use realpath or readlink to normalize the target directory path
 # Check if realpath is available, otherwise use readlink -f
 if command -v realpath &> /dev/null; then
-    TARGET_DIR=$(realpath "${SOURCE_DIR}/../../rollyourown/web/src/zkp")
+    TARGET_DIR=$(realpath "${SOURCE_DIR}/../../rollyourown/web/src/seismic/zkp/parameters/")
 else
-    TARGET_DIR=$(readlink -f "${SOURCE_DIR}/../../rollyourown/web/src/zkp")
+    TARGET_DIR=$(readlink -f "${SOURCE_DIR}/../../rollyourown/web/src/seismic/zkp/parameters/")
 fi
 
 # Files to copy
-FILES=("trade.wasm" "trade.zkey")
+FILES=("trade.wasm" "trade.zkey" "trade.vkey.json")
 
 # Echo paths for debugging
 echo "Script Directory: $SCRIPT_DIR"
