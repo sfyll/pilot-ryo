@@ -10,7 +10,7 @@ mod Seismic {
     use core::option::OptionTrait;
     use core::traits::TryInto;
     use starknet::secp256_trait::Signature; 
-    use seismic::eip712_simple_struct::get_pool_params_commitment;
+    use seismic::eip712::get_pool_params_commitment;
     use starknet::ContractAddress;
     use core::ecdsa::check_ecdsa_signature;
     use core::assert;
