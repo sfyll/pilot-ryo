@@ -70,7 +70,7 @@ impl StructHashSimpleStruct of IStructHash<PoolParams> {
     }
 }
 
-pub fn get_pool_params_commitment(cash: felt252, quantity: felt252, seismic_address: ContractAddress) -> felt252 {
+fn get_pool_params_commitment(cash: felt252, quantity: felt252, seismic_address: ContractAddress) -> felt252 {
     let pool_params = PoolParams {cash: cash, quantity: quantity};
     return pool_params.get_message_hash(seismic_address);
 }
