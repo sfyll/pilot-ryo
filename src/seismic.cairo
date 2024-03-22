@@ -105,3 +105,4 @@ mod tests {
         dispatcher.verify_signature(commitment, cash, quantity, signature);
     }
 }
+

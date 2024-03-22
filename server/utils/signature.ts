@@ -99,3 +99,4 @@ export function hashTypedData(
     // Return the final hash
     return keccak256(`0x${domainHash}${messageHash}`).substring(2);
 }
+

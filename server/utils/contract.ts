@@ -43,3 +43,4 @@ export function contractInterfaceSetup(privKey: string): [any, any] {
 export function sleep(N: number) {
     return new Promise((resolve) => setTimeout(resolve, N * 1000));
 }
+

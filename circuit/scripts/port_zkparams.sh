@@ -35,3 +35,4 @@ for file in "${FILES[@]}"; do
     echo "Failed to copy ${file}"
   fi
 done
+
