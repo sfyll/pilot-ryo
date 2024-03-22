@@ -1,2 +1,2 @@
 mod seismic;
-mod eip712;
+mod eip712_simple_struct;

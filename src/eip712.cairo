@@ -1,3 +1,0 @@
-mod eip712_simple_struct;
-
-use eip712_simple_struct::get_pool_params_commitment;
