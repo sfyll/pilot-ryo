@@ -1,4 +1,4 @@
-import { Contract, RpcProvider } from 'starknet';
+import { Account, Contract,  RpcProvider } from 'starknet';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -32,4 +32,16 @@ export function getContractAccount(address: string): Contract {
     contractAccount = new Contract(compiledAccountContract.abi, address, rpcProvider);
   }
   return contractAccount as Contract;
+}
+
+/*
+ * Instantiate Wallet Provider pointing to katana client. 
+ */
+export async function setupDojoProviderSeismic():  Promise<Account>  {
+
+    const rpcProvider = new RpcProvider({
+        nodeUrl: process.env.RPC_URL,
+    });
+    
+    return new Account(rpcProvider, process.env.SEQUENCER_ADDR as string, process.env.SEQUENCER_PRIVKEY as string, "1");
 }

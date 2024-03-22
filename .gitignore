@@ -3,4 +3,5 @@ target/
 .DS_Store
 .env
 dist/
+.snfoundry_cache/
 

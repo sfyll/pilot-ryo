@@ -37,8 +37,8 @@ export function getStarknetTypedDataWithMessage(
         message
     }
 }
-export const nonce = { name: "nonce", type: "felt"};
 
+export const nonce = { name: "nonce", type: "felt"};
 
 export const TradeParametersTypes = [
     nonce,
@@ -48,8 +48,31 @@ export const TradeParametersTypes = [
 
 export const tradeParametersActionTypeLabel = "TradeParameters";
 export const tradeParametersActionTypes = createEIP712TypesNoBodyStarknet(tradeParametersActionTypeLabel, TradeParametersTypes);
-export const tradeParametersActionDomain = createStarknetEIP712DomainType("Trade Parameters Request");
+export const tradeParametersActionDomain = createStarknetEIP712DomainType("SeismicRyo");
 
 export const tradeParametersDAReqTyped = getStarknetTypedData(tradeParametersActionTypes, tradeParametersActionTypeLabel, tradeParametersActionDomain)
+
+export const TradeTypes = [
+    nonce,
+    { name: "player_id", type: "felt" },
+    { name: "game_id", type: "felt" },
+    { name: "drug_id", type: "felt" },
+    { name: "new_cash", type: "felt" },
+    { name: "new_quantity", type: "felt" },
+]
+export const tradeActionTypeLabel = "Trade";
+export const tradeActionTypes = createEIP712TypesNoBodyStarknet(tradeActionTypeLabel, TradeTypes);
+export const tradeActionDomain = createStarknetEIP712DomainType("SeismicRyo");
+
+export const tradeDAReqTyped = getStarknetTypedData(tradeActionTypes, tradeActionTypeLabel, tradeActionDomain)
+
+export const TradeDATypes = [
+    { name: "cash", type: "felt" },
+    { name: "quantity", type: "felt" },
+]
+
+export const tradeDAActionTypeLabel = "TradeDA";
+export const tradeDAActionTypes = createEIP712TypesNoBodyStarknet(tradeDAActionTypeLabel, TradeDATypes);
+export const tradeDAActionDomain = createStarknetEIP712DomainType("SeismicRyo");
 
 

@@ -19,7 +19,7 @@ export function createApolloClient() : ApolloClient<NormalizedCacheObject> {
   if (typeof apolloClient !== 'undefined') return apolloClient;
   const httpLink = new HttpLink({
       uri: process.env.GQL_URL,
-      fetch
+      fetch,
   });
 
   const wsLink = new GraphQLWsLink(createClient({
@@ -40,7 +40,9 @@ const splitLink = split(
 );
   const client = new ApolloClient({
     link: splitLink,
-    cache: new InMemoryCache(),
+    cache: new InMemoryCache(
+        {resultCaching:false}
+    ),
   });
 
   return client;
