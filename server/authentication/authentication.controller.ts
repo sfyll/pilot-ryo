@@ -28,6 +28,7 @@ class AuthenticationController implements Controller {
     private initializeRoutes() {
         this.router.get(
             `${this.path}/nonce`,
+            this.logRequestDetails,
             validationMiddleware(NonceDto, false, 'query'),
             this.nonce,
         );
@@ -79,7 +80,9 @@ class AuthenticationController implements Controller {
      */
     private logRequestDetails = (req: Request, _: Response, next: NextFunction) => {
         const now = new Date();
-        console.log(`Received request for ${req.path} at ${now.toISOString()}`);
+            console.log(
+                `  == Received request for ${req.path} at ${now.toISOString()} ` 
+            ); 
         next();
     };
 }

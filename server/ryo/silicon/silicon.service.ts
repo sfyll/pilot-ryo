@@ -105,9 +105,10 @@ class SiliconService {
             cash,
             quantity} as Trade
         
-        console.log("Staged Trades: ", this.stagedTrades)
+        console.log(
+            `  == Staging the trade at location: ${trade.location_id}, from: ${trade.player_id}} ` 
+        ); 
         this.stagedTrades.set(key, trade)
-        console.log("Staged Trades: ", this.stagedTrades)
         return  { 
                     cash: hashCash,
                     quantity: hashQuantity,
