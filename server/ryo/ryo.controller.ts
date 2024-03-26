@@ -95,7 +95,7 @@ class RyoController implements Controller {
             console.log(
                 `  == Sending the pools parameters to the users upon predicates verification ` 
             ); 
-            const pricePerDrugId = await this.silicon_service.fetchMarketPrices(playerData.game_id, playerData.location_id);
+            const pricePerDrugId = await this.silicon_service.fetchMarketPricesFromSilicon(this.transparent_silicon, playerData.game_id, playerData.location_id);
             response.json(pricePerDrugId);
         }
         };
