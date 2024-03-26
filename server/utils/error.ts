@@ -11,3 +11,4 @@ export async function handleAsync<T>(
         return [null, error];
     }
 }
+

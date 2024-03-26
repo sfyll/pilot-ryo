@@ -4,7 +4,7 @@ import { apolloClient } from '../utils/apollo_handler';
 import { MarketModelsResponse, BlindedMarketModelsResponse } from "../../graphql/graphql";
 import { BlindedMarketSilicon, MarketSilicon, Trade, TransparentMarketSilicon } from "./silicon.types";
 
-class Silicon<T extends MarketSilicon <bigint|number, bigint|number>> {
+class Silicon<T extends MarketSilicon <bigint|string, bigint|number>> {
     protected query: any;
     public markets: Map<string, T>;
 
@@ -50,7 +50,10 @@ export class TransparentSilicon extends Silicon<TransparentMarketSilicon> {
     * Update market with new pool values on emitted bought or sold event.
     */
     public updateMarket(trade: Trade) {
-        const key = `${trade.game_id}-${trade.location_id}-${trade.drug_id}`
+        console.log(
+            `  == Trade confirmed on-chain. Updating ${trade.drug_id} market to this cash value: ${trade.cash}, and this quantity value: ${trade.quantity} ` 
+        ); 
+        const key = TransparentSilicon.get_key(trade.game_id, trade.location_id, trade.drug_id)
         const market = new TransparentMarketSilicon(
             trade.game_id,
             trade.location_id,
@@ -59,6 +62,9 @@ export class TransparentSilicon extends Silicon<TransparentMarketSilicon> {
             BigInt(parseInt(trade.quantity, 10))
         )
         this.markets.set(key, market)  
+    }
+    public static get_key(game_id: number, location_id: string, drug_id: string) {
+        return `${game_id}-${location_id}-${drug_id}`; 
     }
 }
 

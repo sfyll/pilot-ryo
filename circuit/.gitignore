@@ -1,2 +1,4 @@
 artifacts/
-
+*.wasm
+*.zkey
+*.json
