@@ -12,20 +12,18 @@ export default class Univ2 {
 
 /*
  * GetAmountOut following Univ2 specs.
+ * NB: We round up as handled on starknet.
  */
   public getAmountOut(amountIn: bigint): bigint {
     const numerator = amountIn * this.reserve_out;
     const denominator = this.reserve_in + amountIn;
-    return numerator / denominator;
+    return (numerator + denominator - BigInt(1)) / denominator;
   }
 
-//  public getAmountOut(amountIn: bigint): bigint {
-//
-//    const k = this.reserve_in * this.reserve_in;
-//    return this.reserve_out - (k / (this.reserve_in + amountIn));
-//  }
+
 /*
  * GetAmountIn following Univ2 specs.
+ * NB: We round up as handled on starknet.
  */
   public getAmountIn(amountOut: bigint): bigint {
     if (amountOut >= this.reserve_out) {
@@ -33,7 +31,7 @@ export default class Univ2 {
     }
     const numerator = this.reserve_in * amountOut;
     const denominator = (this.reserve_out - amountOut);
-    return numerator / denominator;
+    return (numerator + denominator - BigInt(1)) / denominator;
   }
 }
 

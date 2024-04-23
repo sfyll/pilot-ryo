@@ -10,14 +10,12 @@ import { starknetAuthhMiddleware } from "../middleware/auth.middleware";
 import validationMiddleware from "../middleware/validation.middleware";
 import { TradeDADto, TradeParametersDADto} from "./ryo.dto";
 import { tradeParametersDAReqTyped, tradeDAReqTyped, tradeDAActionTypes, tradeDAActionTypeLabel, tradeDAActionDomain} from "./ryo.types";
+import PlayerAtHomeException from "../exceptions/PlayerAHomeException";
 import { StarknetRequestWithSignature } from "../interfaces/request.interface";
 import { getMessageHash, signTypedDataStarknet } from "../utils/signature";
 import { Account } from "starknet";
 import { setupDojoProviderSeismic } from "./utils/starknet_handler";
 import { stringifyBigInts } from "../utils/bigint";
-
-import dotenv from "dotenv";
-dotenv.config();
 
 class RyoController implements Controller {
     public path = "/trade";
@@ -25,7 +23,7 @@ class RyoController implements Controller {
     private transparent_silicon: TransparentSilicon;
     private blinded_silicon: BlindedSilicon;
     private silicon_service: SiliconService;
-    private walletClient: Account
+    private walletClient: Account;
     private seismicStarknetContractAddress: string; 
 
     constructor() {
@@ -89,9 +87,8 @@ class RyoController implements Controller {
     ) => {
         const playerData = await this.fetchPlayerData(request);
         if (playerData.location_id == "Home") {
-            return response.status(200).send({
-                message: "No market at home location"
-            })
+            next(new PlayerAtHomeException());
+            return;        
         }
         else {
             const pricePerDrugId = await this.silicon_service.fetchMarketPrices(playerData.game_id, playerData.location_id);
