@@ -29,12 +29,12 @@ class RyoController implements Controller {
     constructor() {
         this.initializeRoutes();
         this.seismicStarknetContractAddress = process.env.VERIFIER_CONTRACT_ADDRESS as string;
-        console.log("our ADDRESS: ", this.seismicStarknetContractAddress)
     }
 
     private initializeRoutes() {
         this.router.post(
                     `${this.path}/tradeParameters`,
+                    this.logRequestDetails,
                     validationMiddleware(TradeParametersDADto),
                     starknetAuthhMiddleware(
                         tradeParametersDAReqTyped.types,
@@ -45,6 +45,7 @@ class RyoController implements Controller {
                 );
         this.router.post(
                     `${this.path}/tradeDavail`,
+                    this.logRequestDetails,
                     validationMiddleware(TradeDADto),
                     starknetAuthhMiddleware(
                         tradeDAReqTyped.types,
@@ -91,7 +92,10 @@ class RyoController implements Controller {
             return;        
         }
         else {
-            const pricePerDrugId = await this.silicon_service.fetchMarketPrices(playerData.game_id, playerData.location_id);
+            console.log(
+                `  == Sending the pools parameters to the users upon predicates verification ` 
+            ); 
+            const pricePerDrugId = await this.silicon_service.fetchMarketPricesFromSilicon(this.transparent_silicon, playerData.game_id, playerData.location_id);
             response.json(pricePerDrugId);
         }
         };
@@ -115,7 +119,9 @@ class RyoController implements Controller {
 
     private logRequestDetails = (req: Request, _: Response, next: NextFunction) => {
         const now = new Date();
-        console.log(`Received request for ${req.path} at ${now.toISOString()}`);
+            console.log(
+                `  == Received request for ${req.path} at ${now.toISOString()} ` 
+            ); 
         next();
     };
 

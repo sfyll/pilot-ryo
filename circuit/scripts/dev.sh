@@ -35,3 +35,4 @@ mv ${NAME}.vkey.json ${NAME}/
 
 # Clean up
 rm -r ${NAME}.wtns ${NAME}_js/ ${NAME}.r1cs
+

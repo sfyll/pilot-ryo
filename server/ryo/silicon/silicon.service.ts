@@ -105,9 +105,10 @@ class SiliconService {
             cash,
             quantity} as Trade
         
-        console.log("Staged Trades: ", this.stagedTrades)
+        console.log(
+            `  == Staging the trade at location: ${trade.location_id}, from: ${trade.player_id}} ` 
+        ); 
         this.stagedTrades.set(key, trade)
-        console.log("Staged Trades: ", this.stagedTrades)
         return  { 
                     cash: hashCash,
                     quantity: hashQuantity,
@@ -233,6 +234,37 @@ public async fetchMarketPrice(playerData: PlayerData, drug_id: string): Promise<
 
 }
 
+/*
+* returns blinded arketPrices per drug at the specified location_id.
+*/
+public async fetchMarketPricesFromSilicon(
+    transparent_silicon: TransparentSilicon,
+    game_id: number,
+    location_id: string
+): Promise<MarketPricesPerDrugId> {
+    try {
+
+        const marketPricesMapping: MarketPricesPerDrugId = {};
+
+        Object.keys(Drug).forEach(key => {
+            if (!isNaN(Number(key))) return; 
+            const keyForMarket = TransparentSilicon.get_key(game_id, location_id, key);
+            const market = transparent_silicon.markets.get(keyForMarket);
+            if (!market) {
+                return;
+            }
+            marketPricesMapping[key] = { 
+                cash: market.cash, 
+                quantity: Number(market.quantity),                 
+                location_id: market.location_id 
+            };
+        });
+
+        return marketPricesMapping;
+    } catch (error) {
+        throw new Error(`Failed to fetch market prices from silicon. ${error}`);
+    }
+}
 }
 export default SiliconService;
 
