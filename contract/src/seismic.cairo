@@ -44,7 +44,6 @@ mod Seismic {
         }
     }
 
-
 #[cfg(test)]
 mod tests {
     use seismic::seismic::ISeismicDispatcherTrait;
@@ -93,6 +92,7 @@ mod tests {
         // calldata.append(public_key);
         // calldata.append(address_seismic_starknet);
 
+
         let contract_address = contract.deploy(@calldata).unwrap();
 
         let dispatcher = ISeismicDispatcher { contract_address };
@@ -106,6 +106,7 @@ mod tests {
         let cash = 0x32bc7b08be58b5b122343f69006cf51d04d735331d97c63f43fb696ea7baec9;
         let quantity = 0x6e65f09527633e587f0f1ffb8c6d288e10ea5a70032b05748fd9d69fa483b93;
         dispatcher.verify_signature(commitment, cash, quantity, signature);
+
     }
 }
 
