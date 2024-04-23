@@ -7,15 +7,19 @@ export default class Trade {
     pool: Univ2;
     salt: bigint;
     amountIn: bigint;
+    amountInRoundedDown: bigint;
     amountOut: bigint;
+    amountOutRoundedDown: bigint;
     reserve_in_image: string;
     reserve_out_image: string;
 
-    constructor(pool: Univ2, salt: bigint, amountIn: bigint, amountOut: bigint, reserve_in_image: string, reserve_out_image: string) {
+    constructor(pool: Univ2, salt: bigint, amountIn: bigint, amountInRoundedDown: bigint, amountOut: bigint, amountOutRoundedDown: bigint, reserve_in_image: string, reserve_out_image: string) {
         this.pool = pool;
         this.salt = salt;
         this.amountIn = amountIn;
+        this.amountInRoundedDown = amountInRoundedDown;
         this.amountOut = amountOut;
+        this.amountOutRoundedDown = amountOutRoundedDown;
         this.reserve_in_image = reserve_in_image;
         this.reserve_out_image = reserve_out_image;
     }
@@ -23,12 +27,12 @@ export default class Trade {
     /*
      * Generalized function to create a Trade instance
      */
-    private static async createTrade(reserve_in: bigint, reserve_out: bigint, amountIn: bigint, amountOut: bigint) {
+    private static async createTrade(reserve_in: bigint, reserve_out: bigint, amountIn: bigint, amountInRoundedDown: bigint, amountOut: bigint, amountOutRoundedDown: bigint) {
         const pool = new Univ2(reserve_in, reserve_out);
         const salt = genRandomInt();
         const reserve_in_image = await Trade.get_reserve_image(pool.reserve_in, salt);
         const reserve_out_image = await Trade.get_reserve_image(pool.reserve_out, salt);
-        return new Trade(pool, salt, amountIn, amountOut, reserve_in_image, reserve_out_image);
+        return new Trade(pool, salt, amountIn, amountInRoundedDown, amountOut, amountOutRoundedDown, reserve_in_image, reserve_out_image);
     }
 
     /*
@@ -37,7 +41,8 @@ export default class Trade {
     private static async getParametersBuy(reserve_in: bigint, reserve_out: bigint, amountOut: bigint) {
         const pool = new Univ2(reserve_in, reserve_out);
         const amountIn = pool.getAmountIn(amountOut);
-        return Trade.createTrade(reserve_in, reserve_out, amountIn, amountOut);   
+        const amountInRoundedDown = amountIn - BigInt(1);
+        return Trade.createTrade(reserve_in, reserve_out, amountIn,  amountInRoundedDown, amountOut, amountOut);   
     }
 
     /*
@@ -46,7 +51,8 @@ export default class Trade {
     private static async getParametersSell(reserve_in: bigint, reserve_out: bigint, amountIn: bigint) {
         const pool = new Univ2(reserve_in, reserve_out);
         const amountOut = pool.getAmountOut(amountIn);
-        return Trade.createTrade(reserve_in, reserve_out, amountIn, amountOut);
+        const amountOutRoundedDown = amountOut - BigInt(1)
+        return Trade.createTrade(reserve_in, reserve_out, amountIn, amountIn, amountOut, amountOutRoundedDown);
     }
      
     /*
@@ -55,9 +61,11 @@ export default class Trade {
     public getZkpParams(): ZkpParams {
         return {
             amount_in: this.amountIn.toString(),
+            amount_in_rounded_down: this.amountInRoundedDown.toString(),
             reserve_in: this.pool.reserve_in.toString(),
             reserve_out: this.pool.reserve_out.toString(),
             amount_out: this.amountOut.toString(),
+            amount_out_rounded_down: this.amountOutRoundedDown.toString(),
             salt: this.salt.toString(),
             reserve_in_image: this.reserve_in_image,
             reserve_out_image: this.reserve_out_image

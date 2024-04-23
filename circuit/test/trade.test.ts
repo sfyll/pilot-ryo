@@ -30,12 +30,14 @@ describe("Unit test for getAmountIn()", () => {
         const reserve_out_image = await Trade.get_reserve_image(pool.reserve_out, salt) 
         const amountOut = BigInt(50_000); 
         const amountIn = pool.getAmountIn(amountOut);         
-
+        const amountInRoundedDown = amountIn - BigInt(1);         
         let w = circuit.calculateWitness({
             amount_in: amountIn.toString(),
+            amount_in_rounded_down: amountInRoundedDown.toString(),
             reserve_in: pool.reserve_in.toString(),
             reserve_out: pool.reserve_out.toString(),
             amount_out: amountIn.toString(),
+            amount_out_rounded_down: amountIn.toString(),
             salt: salt.toString(),
             reserve_in_image: reserve_in_image.toString(),
             reserve_out_image: reserve_out_image.toString(),
@@ -47,14 +49,36 @@ describe("Unit test for getAmountIn()", () => {
         const reserve_out_image = await Trade.get_reserve_image(pool.reserve_out, salt) 
         const amountOut = BigInt(50_000); 
         const amountIn = pool.getAmountIn(amountOut);         
+        const amountInRoundedDown = amountIn - BigInt(1);         
 
         const w =  circuit.calculateWitness({
             amount_in: amountIn.toString(),
+            amount_in_rounded_down: amountInRoundedDown.toString(),
             reserve_in: pool.reserve_in.toString(),
             reserve_out: pool.reserve_out.toString(),
             amount_out: amountIn.toString(),
-            salt: salt.toString(),
+            amount_out_rounded_down: amountIn.toString(),
             reserve_in_image: BigInt(0).toString(),
+            reserve_out_image: reserve_out_image.toString(),
+        });
+        await expect(w).to.be.rejected
+    });
+        it("fails as the rounded down value is not equal to value minus one", async () => {
+        const salt = genRandomInt();
+        const reserve_in_image = await Trade.get_reserve_image(pool.reserve_in, salt) 
+        const reserve_out_image = await Trade.get_reserve_image(pool.reserve_out, salt) 
+        const amountOut = BigInt(50_000); 
+        const amountIn = pool.getAmountIn(amountOut);         
+        const amountInRoundedDown = amountIn - BigInt(1);         
+        let w = circuit.calculateWitness({
+            amount_in: amountIn.toString(),
+            amount_in_rounded_down: amountInRoundedDown.toString(),
+            reserve_in: pool.reserve_in.toString(),
+            reserve_out: pool.reserve_out.toString(),
+            amount_out: amountIn.toString(),
+            amount_out_rounded_down: (amountIn - BigInt(2)).toString(),
+            salt: salt.toString(),
+            reserve_in_image: reserve_in_image.toString(),
             reserve_out_image: reserve_out_image.toString(),
         });
         await expect(w).to.be.rejected
@@ -82,12 +106,15 @@ describe("Unit test for GetAmountOut()", () => {
         const reserve_in_image = await Trade.get_reserve_image(pool.reserve_in, salt) 
         const reserve_out_image = await Trade.get_reserve_image(pool.reserve_out, salt) 
         const amountIn = BigInt(5_000); 
-
+        const amountInRoundedDown = amountIn - BigInt(1);         
+        
         let w = circuit.calculateWitness({
             amount_in: amountIn.toString(),
+            amount_in_rounded_down: amountInRoundedDown.toString(),
             reserve_in: pool.reserve_in.toString(),
             reserve_out: pool.reserve_out.toString(),
             amount_out: amountIn.toString(),
+            amount_out_rounded_down: amountIn.toString(),
             salt: salt.toString(),
             reserve_in_image: reserve_in_image.toString(),
             reserve_out_image: reserve_out_image.toString(),
@@ -98,16 +125,36 @@ describe("Unit test for GetAmountOut()", () => {
         const salt = genRandomInt();
         const reserve_out_image = await Trade.get_reserve_image(pool.reserve_out, salt) 
         const amountIn = BigInt(5_000); 
-        const amountOut = pool.getAmountIn(amountIn);         
-              
+        const amountInRoundedDown = amountIn - BigInt(1);         
 
         const w =  circuit.calculateWitness({
             amount_in: amountIn.toString(),
+            amount_in_rounded_down: amountInRoundedDown.toString(),
             reserve_in: pool.reserve_in.toString(),
             reserve_out: pool.reserve_out.toString(),
-            amount_out: amountOut.toString(),
-            salt: salt.toString(),
+            amount_out: amountIn.toString(),
+            amount_out_rounded_down: amountIn.toString(),
             reserve_in_image: BigInt(0).toString(),
+            reserve_out_image: reserve_out_image.toString(),
+        });
+       await expect(w).to.be.rejected
+    });
+    it("fails as the rounded down value is not equal to value minus one", async () => {
+        const salt = genRandomInt();
+        const reserve_in_image = await Trade.get_reserve_image(pool.reserve_in, salt) 
+        const reserve_out_image = await Trade.get_reserve_image(pool.reserve_out, salt) 
+        const amountOut = BigInt(50_000); 
+        const amountIn = pool.getAmountIn(amountOut);         
+        const amountInRoundedDown = amountIn - BigInt(1);         
+        let w = circuit.calculateWitness({
+            amount_in: amountIn.toString(),
+            amount_in_rounded_down: amountInRoundedDown.toString(),
+            reserve_in: pool.reserve_in.toString(),
+            reserve_out: pool.reserve_out.toString(),
+            amount_out: amountIn.toString(),
+            amount_out_rounded_down: (amountIn - BigInt(2)).toString(),
+            salt: salt.toString(),
+            reserve_in_image: reserve_in_image.toString(),
             reserve_out_image: reserve_out_image.toString(),
         });
         await expect(w).to.be.rejected
