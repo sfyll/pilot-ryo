@@ -1,7 +1,7 @@
 import { ApolloQueryResult, DocumentNode } from '@apollo/client/core';
 import { getOperationName } from '@apollo/client/utilities';
 import { apolloClient } from '../utils/subscription_manager';
-import { MarketModelsResponse, EncryptedMarketModelsResponse, Market, EncryptedMarket } from "../../graphql/graphql";
+import { MarketModelsResponse, BlindedMarketModelsResponse, Market, BlindedMarket } from "../../graphql/graphql";
 
 
 export class Silicon<T> {
@@ -34,31 +34,31 @@ class TransparentSilicon extends Silicon<Market> {
     }
 }
 
-class EncryptedSilicon extends Silicon<EncryptedMarket> {
+class BlindedSilicon extends Silicon<BlindedMarket> {
     async fetchMarkets() {
         try {
-            const response: ApolloQueryResult<EncryptedMarketModelsResponse> = await apolloClient.query<EncryptedMarketModelsResponse>({
+            const response: ApolloQueryResult<BlindedMarketModelsResponse> = await apolloClient.query<BlindedMarketModelsResponse>({
                 query: this.query,
             });
 
-            this.markets = response.data.encryptedMarketModels.edges
+            this.markets = response.data.blindedMarketModels.edges
                 .map(edge => edge.node)
-                .filter((node): node is EncryptedMarket => node !== null);
+                .filter((node): node is BlindedMarket => node !== null);
         } catch (error) {
-            console.error('Error fetching encrypted markets:', error);
+            console.error('Error fetching Blinded markets:', error);
         }
     }
 }
 
-export async function instantiate_silicon(query: DocumentNode): Promise<Silicon<Market> | Silicon<EncryptedMarket>> {
-    let siliconInstance: Silicon<Market> | Silicon<EncryptedMarket>;
+export async function instantiate_silicon(query: DocumentNode): Promise<Silicon<Market> | Silicon<BlindedMarket>> {
+    let siliconInstance: Silicon<Market> | Silicon<BlindedMarket>;
 
     const operationName = getOperationName(query) 
 
     if (operationName === 'GetAllMarkets') {
         siliconInstance = new TransparentSilicon(query);
-    } else if (operationName === 'GetAllEncryptedMarkets') {
-        siliconInstance = new EncryptedSilicon(query);
+    } else if (operationName === 'GetAllBlindedMarkets') {
+        siliconInstance = new BlindedSilicon(query);
     } else {
         throw new Error('Unknown query operation name');
     }

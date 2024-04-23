@@ -21,9 +21,9 @@ export const GET_ALL_MARKETS_QUERY = gql`
     }
 `;
 
-export const GET_ALL_ENCRYPTED_MARKETS_QUERY = gql`
-    query GetAllEncryptedMarkets {
-        encryptedMarketModels(first: 36) {
+export const GET_ALL_BLINDED_MARKETS_QUERY = gql`
+    query GetAllBlindedMarkets {
+        blindedMarketModels(first: 36) {
             edges {
                 node {
                     game_id
@@ -41,5 +41,20 @@ export const GET_ALL_ENCRYPTED_MARKETS_QUERY = gql`
         }
     }
 `;
+
+export const get_player_details = gql`
+    query getUser($playerWhereInput: PlayerWhereInput!) {
+      playerModels(where: $playerWhereInput) {
+        edges {
+          node {
+            game_id
+            player_id
+          }
+        }
+      }
+    }
+`;
+
+
 
 

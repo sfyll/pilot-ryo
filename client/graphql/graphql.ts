@@ -1139,9 +1139,9 @@ export type MarketModelsResponse = {
     };
 };
 
-export type EncryptedMarketModelsResponse = {
-    encryptedMarketModels: {
-        edges: EncryptedMarketEdge[];
+export type BlindedMarketModelsResponse = {
+    blindedMarketModels: {
+        edges: BlindedMarketEdge[];
         totalCount: number;
         pageInfo: {
             hasNextPage: boolean;
@@ -1149,8 +1149,8 @@ export type EncryptedMarketModelsResponse = {
         };
     };
 };
-export type EncryptedMarket = {
-  __typename?: 'EncryptedMarket';
+export type BlindedMarket = {
+  __typename?: 'BlindedMarket';
   cash?: Maybe<Scalars['u128']>;
   drug_id?: Maybe<Scalars['Enum']>;
   entity?: Maybe<World__Entity>;
@@ -1159,20 +1159,20 @@ export type EncryptedMarket = {
   quantity?: Maybe<Scalars['felt252']>;
 };
 
-export type EncryptedMarketConnection = {
-  __typename?: 'EncryptedMarketConnection';
-  edges?: Maybe<Array<Maybe<EncryptedMarketEdge>>>;
+export type BlindedMarketConnection = {
+  __typename?: 'BlindedMarketConnection';
+  edges?: Maybe<Array<Maybe<BlindedMarketEdge>>>;
   pageInfo: World__PageInfo;
   totalCount: Scalars['Int'];
 };
 
-export type EncryptedMarketEdge = {
-  __typename?: 'EncryptedMarketEdge';
+export type BlindedMarketEdge = {
+  __typename?: 'BlindedMarketEdge';
   cursor?: Maybe<Scalars['Cursor']>;
-  node?: Maybe<EncryptedMarket>;
+  node?: Maybe<BlindedMarket>;
 };
 
-export enum EncryptedMarketOrderField {
+export enum BlindedMarketOrderField {
   Cash = 'CASH',
   DrugId = 'DRUG_ID',
   GameId = 'GAME_ID',
