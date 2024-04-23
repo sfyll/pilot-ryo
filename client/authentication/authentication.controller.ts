@@ -28,7 +28,7 @@ class AuthenticationController implements Controller {
     private initializeRoutes() {
         this.router.get(
             `${this.path}/nonce`,
-            validationMiddleware(NonceDto),
+            validationMiddleware(NonceDto, false, 'query'),
             this.nonce,
         );
         this.router.post(
@@ -51,7 +51,7 @@ class AuthenticationController implements Controller {
         response: Response,
         next: NextFunction,
     ) => {
-        const address: string = request.body.address;
+        const address: string = request.query.address as string;
         if (isAddress(address) || isStarknetAddress(address)) {
             response.send({
                 nonce: this.authenticationService.getNonce(address).toString(),
@@ -72,6 +72,15 @@ class AuthenticationController implements Controller {
         response: Response,
     ) => {
         response.status(200).send({});
+    };
+    
+    /*
+     * A debugging function to log request path and arrival time. 
+     */
+    private logRequestDetails = (req: Request, _: Response, next: NextFunction) => {
+        const now = new Date();
+        console.log(`Received request for ${req.path} at ${now.toISOString()}`);
+        next();
     };
 }
 

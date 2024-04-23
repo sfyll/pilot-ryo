@@ -1,6 +1,7 @@
 // starter template credit: https://github.com/mwanago/express-typescript/tree/master
 
 import express from "express";
+import cors from "cors";
 import bodyParser from "body-parser";
 import Controller from "./interfaces/controller.interface";
 import errorMiddleware from "./middleware/error.middleware";
@@ -14,6 +15,7 @@ class App {
         controllers: Controller[],
     ) {
         this.app = express();
+        this.authorizeClient();
         this.initializeMiddlewares();
         this.initializeAuthentication(authenticationService);
         this.initializeControllers(controllers);
@@ -28,6 +30,13 @@ class App {
 
     public getServer(): express.Application {
         return this.app;
+    }
+
+    private authorizeClient() {
+        const corsOptions = {
+            origin: process.env.CLIENT_URL 
+        }
+        this.app.use(cors(corsOptions))
     }
 
     private initializeControllers(controllers: Controller[]) {
