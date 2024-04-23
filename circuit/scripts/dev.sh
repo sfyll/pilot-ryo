@@ -30,8 +30,8 @@ node ${NAME}_js/generate_witness.js \
      ${NAME}.wtns
 
 # Save proving key and witness generation script
-mv ${NAME}_js/${NAME}.wasm ${NAME}.zkey ${NAME}/
+mv ${NAME}_js/${NAME}.wasm  ${NAME}.zkey ${NAME}/ 
+mv ${NAME}.vkey.json ${NAME}/
 
 # Clean up
-rm -r ${NAME}.vkey.json 
 rm -r ${NAME}.wtns ${NAME}_js/ ${NAME}.r1cs

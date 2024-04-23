@@ -36,6 +36,7 @@ class SiliconService {
                 if (this.stagedTrades.has(key)){
                     const trade = this.stagedTrades.get(key) as Trade;
                     updateMarket(trade);
+                    this.stagedTrades.delete(key)
                 }
             }
           },
@@ -76,8 +77,8 @@ class SiliconService {
         'gameId' in event && 
         'playerId' in event &&
         'drugId' in event && 
-        'quantity' in event && 
-        'cash' in event;
+        'cash' in event &&
+        'quantity' in event; 
     }
 
     /*
